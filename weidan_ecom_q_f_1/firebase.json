@@ -1,0 +1,32 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "weidan-ecom",
+          "appId": "1:115685872342:android:77a04563fa0c1b78cbaf77",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "weidan-ecom",
+          "configurations": {
+            "android": "1:115685872342:android:77a04563fa0c1b78cbaf77",
+            "ios": "1:115685872342:ios:df13c9a5fd4dfd85cbaf77",
+            "macos": "1:115685872342:ios:df13c9a5fd4dfd85cbaf77",
+            "web": "1:115685872342:web:ce78d38c7aaae14fcbaf77",
+            "windows": "1:115685872342:web:8ead77c714b7c539cbaf77"
+          }
+        }
+      }
+    }
+  }
+}

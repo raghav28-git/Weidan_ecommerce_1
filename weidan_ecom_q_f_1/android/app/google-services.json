@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "115685872342",
+    "project_id": "weidan-ecom",
+    "storage_bucket": "weidan-ecom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:115685872342:android:77a04563fa0c1b78cbaf77",
+        "android_client_info": {
+          "package_name": "com.example.weidan_ecom_q_f_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "115685872342-1img6ukmo6lv5d1349euf7ufhdf0q5hp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.weidan_ecom_q_f_1",
+            "certificate_hash": "e78f81aac221fa2c57d17b3b61cdc4cfcf130e91"
+          }
+        },
+        {
+          "client_id": "115685872342-9ufurk9qs9v9lk8psvkamiqara1anokq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKFNzmpliBoPFOq2dfLuvoAh7qfTm1NGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "115685872342-9ufurk9qs9v9lk8psvkamiqara1anokq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "115685872342-2u1o7puoml0oavpjl7gf3qhrjtoro2mt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.weidanEcomQF1"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:115685872342:android:f324edd214a35266cbaf77",
+        "android_client_info": {
+          "package_name": "com.example.weiden_ecom_login"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "115685872342-9ufurk9qs9v9lk8psvkamiqara1anokq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKFNzmpliBoPFOq2dfLuvoAh7qfTm1NGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "115685872342-9ufurk9qs9v9lk8psvkamiqara1anokq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "115685872342-2u1o7puoml0oavpjl7gf3qhrjtoro2mt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.weidanEcomQF1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
