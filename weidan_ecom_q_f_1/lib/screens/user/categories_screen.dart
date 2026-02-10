@@ -47,61 +47,74 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       body: Column(
         children: [
           // Category Header
-          Container(
-            padding: EdgeInsets.all(20),
-            color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Shop by Category',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
-                    fontFamily: 'SF Pro Display',
-                  ),
-                ),
-                SizedBox(height: 16),
-                // Category Tabs
-                Container(
-                  height: 50,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      String category = _categories[index];
-                      bool isSelected = _selectedCategory == category;
-                      
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedCategory = category),
-                        child: Container(
-                          margin: EdgeInsets.only(right: 12),
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected ? Colors.black : Colors.white,
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              color: isSelected ? Colors.black : Colors.grey[300]!,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              category,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.grey[700],
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'SF Pro Display',
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final padding = screenWidth * 0.045;
+              final fontSize = screenWidth * 0.042;
+              final pillHeight = screenWidth * 0.11;
+              
+              return Container(
+                padding: EdgeInsets.all(padding.clamp(16, 24)),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Shop by Category',
+                      style: TextStyle(
+                        fontSize: fontSize.clamp(16, 20),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                        fontFamily: 'SF Pro Display',
+                      ),
+                    ),
+                    SizedBox(height: screenWidth * 0.035),
+                    // Category Tabs
+                    Container(
+                      height: pillHeight.clamp(45, 55),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          String category = _categories[index];
+                          bool isSelected = _selectedCategory == category;
+                          
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedCategory = category),
+                            child: Container(
+                              margin: EdgeInsets.only(right: screenWidth * 0.025),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.045,
+                                vertical: screenWidth * 0.025,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.black : Colors.white,
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                  color: isSelected ? Colors.black : Colors.grey[300]!,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  category,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: (fontSize * 0.85).clamp(13, 16),
+                                    fontFamily: 'SF Pro Display',
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
           
           // Products Grid
@@ -154,24 +167,33 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 
                 List<ProductModel> products = snapshot.data!;
                 
-                return GridView.builder(
-                  padding: EdgeInsets.all(20),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductCard(
-                      product: products[index],
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductDetailScreen(product: products[index]),
-                          ),
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = constraints.maxWidth;
+                    final crossAxisCount = screenWidth > 600 ? 3 : 2;
+                    final spacing = screenWidth * 0.035;
+                    final padding = screenWidth * 0.045;
+                    
+                    return GridView.builder(
+                      padding: EdgeInsets.all(padding.clamp(16, 24)),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        childAspectRatio: 0.75,
+                        crossAxisSpacing: spacing.clamp(12, 18),
+                        mainAxisSpacing: spacing.clamp(12, 18),
+                      ),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        return ProductCard(
+                          product: products[index],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailScreen(product: products[index]),
+                              ),
+                            );
+                          },
                         );
                       },
                     );

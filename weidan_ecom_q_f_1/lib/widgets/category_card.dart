@@ -13,34 +13,43 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 50,
-                color: Colors.black,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final padding = screenWidth * 0.045;
+        final iconSize = screenWidth * 0.12;
+        final titleSize = screenWidth * 0.038;
+        
+        return GestureDetector(
+          onTap: onTap,
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: Container(
+              padding: EdgeInsets.all(padding.clamp(16, 24)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    size: iconSize.clamp(45, 60),
+                    color: Colors.black,
+                  ),
+                  SizedBox(height: screenWidth * 0.02),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: titleSize.clamp(14, 18),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              SizedBox(height: 10),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

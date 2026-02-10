@@ -97,344 +97,376 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Spacer(),
-            Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header / Greeting
-                  Text(
-                    'Hello there!',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                  
-                  SizedBox(height: 12),
-                  
-                  // Subtext
-                  Text(
-                    'Create an account to access your order history and get real-time shipment updates.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontFamily: 'Montserrat',
-                      height: 1.4,
-                    ),
-                  ),
-                  
-                  SizedBox(height: 40),
-                  
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        // Email/Phone field
-                        TextFormField(
-                          controller: _emailController,
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 16,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Enter your mail/phone number',
-                            hintStyle: TextStyle(
-                              color: Colors.grey[500],
-                              fontFamily: 'Montserrat',
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.purple, width: 2),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Enter email or phone';
-                            return null;
-                          },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final screenHeight = constraints.maxHeight;
+            final padding = screenWidth * 0.06;
+            final titleSize = screenWidth * 0.08;
+            final subtitleSize = screenWidth * 0.04;
+            final inputHeight = screenWidth * 0.14;
+            final buttonHeight = screenWidth * 0.14;
+            final spacing = screenHeight * 0.025;
+            
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: screenHeight),
+                child: Padding(
+                  padding: EdgeInsets.all(padding.clamp(20, 32)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: spacing.clamp(16, 32)),
+                      
+                      // Header / Greeting
+                      Text(
+                        'Hello there!',
+                        style: TextStyle(
+                          fontSize: titleSize.clamp(28, 36),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: 'Montserrat',
                         ),
-                        
-                        SizedBox(height: 20),
-                        
-                        // Password field
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 16,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Enter your password',
-                            hintStyle: TextStyle(
-                              color: Colors.grey[500],
-                              fontFamily: 'Montserrat',
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.purple, width: 2),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.grey[600],
-                              ),
-                              onPressed: () {
-                                setState(() => _obscurePassword = !_obscurePassword);
-                              },
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Enter password';
-                            if (value.length < 6) return 'Password must be 6+ characters';
-                            return null;
-                          },
+                      ),
+                      
+                      SizedBox(height: spacing.clamp(10, 16)),
+                      
+                      // Subtext
+                      Text(
+                        'Create an account to access your order history and get real-time shipment updates.',
+                        style: TextStyle(
+                          fontSize: subtitleSize.clamp(14, 18),
+                          color: Colors.grey[600],
+                          fontFamily: 'Montserrat',
+                          height: 1.4,
                         ),
-                        
-                        SizedBox(height: 20),
-                        
-                        // Re-type Password field
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirmPassword,
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 16,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Re-type your password',
-                            hintStyle: TextStyle(
-                              color: Colors.grey[500],
-                              fontFamily: 'Montserrat',
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.purple, width: 2),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.grey[600],
-                              ),
-                              onPressed: () {
-                                setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
-                              },
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Re-enter password';
-                            return null;
-                          },
-                        ),
-                        
-                        SizedBox(height: 24),
-                        
-                        // Terms & Privacy Agreement
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                      
+                      SizedBox(height: spacing.clamp(24, 40)),
+                      
+                      Form(
+                        key: _formKey,
+                        child: Column(
                           children: [
-                            Checkbox(
-                              value: _agreeToTerms,
-                              onChanged: (value) {
-                                setState(() => _agreeToTerms = value ?? false);
+                            // Email/Phone field
+                            TextFormField(
+                              controller: _emailController,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: subtitleSize.clamp(14, 18),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Enter your mail/phone number',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontFamily: 'Montserrat',
+                                  fontSize: subtitleSize.clamp(14, 18),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[50],
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: padding.clamp(14, 20),
+                                  vertical: (inputHeight * 0.25).clamp(14, 18),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Enter email or phone';
+                                return null;
                               },
-                              activeColor: Colors.purple,
                             ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() => _agreeToTerms = !_agreeToTerms);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 12),
-                                  child: RichText(
-                                    text: TextSpan(
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[700],
-                                        fontFamily: 'Montserrat',
-                                      ),
-                                      children: [
-                                        TextSpan(text: 'By signing up, you agree to our '),
-                                        TextSpan(
-                                          text: 'Terms of Services',
-                                          style: TextStyle(
-                                            color: Colors.purple,
-                                            decoration: TextDecoration.underline,
-                                          ),
-                                        ),
-                                        TextSpan(text: ' and '),
-                                        TextSpan(
-                                          text: 'Privacy Policy',
-                                          style: TextStyle(
-                                            color: Colors.purple,
-                                            decoration: TextDecoration.underline,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                            
+                            SizedBox(height: spacing.clamp(16, 24)),
+                            
+                            // Password field
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: subtitleSize.clamp(14, 18),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Enter your password',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontFamily: 'Montserrat',
+                                  fontSize: subtitleSize.clamp(14, 18),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[50],
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: padding.clamp(14, 20),
+                                  vertical: (inputHeight * 0.25).clamp(14, 18),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                    color: Colors.grey[600],
+                                    size: (screenWidth * 0.055).clamp(20, 26),
+                                  ),
+                                  onPressed: () {
+                                    setState(() => _obscurePassword = !_obscurePassword);
+                                  },
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Enter password';
+                                if (value.length < 6) return 'Password must be 6+ characters';
+                                return null;
+                              },
+                            ),
+                            
+                            SizedBox(height: spacing.clamp(16, 24)),
+                            
+                            // Re-type Password field
+                            TextFormField(
+                              controller: _confirmPasswordController,
+                              obscureText: _obscureConfirmPassword,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: subtitleSize.clamp(14, 18),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Re-type your password',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontFamily: 'Montserrat',
+                                  fontSize: subtitleSize.clamp(14, 18),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[50],
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: padding.clamp(14, 20),
+                                  vertical: (inputHeight * 0.25).clamp(14, 18),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                                    color: Colors.grey[600],
+                                    size: (screenWidth * 0.055).clamp(20, 26),
+                                  ),
+                                  onPressed: () {
+                                    setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                                  },
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Re-enter password';
+                                return null;
+                              },
+                            ),
+                            
+                            SizedBox(height: spacing.clamp(18, 28)),
+                            
+                            // Terms & Privacy Agreement
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Transform.scale(
+                                  scale: (screenWidth * 0.0025).clamp(0.9, 1.1),
+                                  child: Checkbox(
+                                    value: _agreeToTerms,
+                                    onChanged: (value) {
+                                      setState(() => _agreeToTerms = value ?? false);
+                                    },
+                                    activeColor: Colors.purple,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        
-                        SizedBox(height: 32),
-                        
-                        // Sign Up button
-                        GestureDetector(
-                          onTap: _isLoading ? null : _signUp,
-                          child: Container(
-                            width: double.infinity,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.purple,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: _isLoading
-                                  ? CircularProgressIndicator(color: Colors.white)
-                                  : Text(
-                                      'Sign Up',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Montserrat',
-                                        color: Colors.white,
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() => _agreeToTerms = !_agreeToTerms);
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: (screenWidth * 0.03).clamp(10, 14)),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontSize: (subtitleSize * 0.9).clamp(12, 16),
+                                            color: Colors.grey[700],
+                                            fontFamily: 'Montserrat',
+                                          ),
+                                          children: [
+                                            TextSpan(text: 'By signing up, you agree to our '),
+                                            TextSpan(
+                                              text: 'Terms of Services',
+                                              style: TextStyle(
+                                                color: Colors.purple,
+                                                decoration: TextDecoration.underline,
+                                              ),
+                                            ),
+                                            TextSpan(text: ' and '),
+                                            TextSpan(
+                                              text: 'Privacy Policy',
+                                              style: TextStyle(
+                                                color: Colors.purple,
+                                                decoration: TextDecoration.underline,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                            ),
-                          ),
-                        ),
-                        
-                        SizedBox(height: 32),
-                        
-                        // Divider
-                        Text(
-                          'or',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                            fontFamily: 'Montserrat',
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        
-                        SizedBox(height: 24),
-                        
-                        // Continue with Google
-                        GestureDetector(
-                          onTap: _isLoading ? null : _signInWithGoogle,
-                          child: Container(
-                            width: double.infinity,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey[300]!),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.g_mobiledata,
-                                  size: 24,
-                                  color: Colors.red,
-                                ),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Continue with Google',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.black87,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                        
-                        SizedBox(height: 32),
-                        
-                        // Already have account
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Already have an account? ',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
+                            
+                            SizedBox(height: spacing.clamp(24, 36)),
+                            
+                            // Sign Up button
                             GestureDetector(
-                              onTap: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                                );
-                              },
-                              child: Text(
-                                'Sign In',
-                                style: TextStyle(
-                                  fontSize: 14,
+                              onTap: _isLoading ? null : _signUp,
+                              child: Container(
+                                width: double.infinity,
+                                height: buttonHeight.clamp(52, 60),
+                                decoration: BoxDecoration(
                                   color: Colors.purple,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Montserrat',
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: _isLoading
+                                      ? CircularProgressIndicator(color: Colors.white)
+                                      : Text(
+                                          'Sign Up',
+                                          style: TextStyle(
+                                            fontSize: (subtitleSize * 1.1).clamp(16, 20),
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                 ),
                               ),
                             ),
+                            
+                            SizedBox(height: spacing.clamp(24, 36)),
+                            
+                            // Divider
+                            Text(
+                              'or',
+                              style: TextStyle(
+                                fontSize: subtitleSize.clamp(14, 18),
+                                color: Colors.grey[600],
+                                fontFamily: 'Montserrat',
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            
+                            SizedBox(height: spacing.clamp(18, 28)),
+                            
+                            // Continue with Google
+                            GestureDetector(
+                              onTap: _isLoading ? null : _signInWithGoogle,
+                              child: Container(
+                                width: double.infinity,
+                                height: buttonHeight.clamp(52, 60),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey[300]!),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.g_mobiledata,
+                                      size: (screenWidth * 0.06).clamp(22, 28),
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: screenWidth * 0.03),
+                                    Text(
+                                      'Continue with Google',
+                                      style: TextStyle(
+                                        fontSize: subtitleSize.clamp(14, 18),
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Montserrat',
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: spacing.clamp(24, 36)),
+                            
+                            // Already have account
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Already have an account? ',
+                                  style: TextStyle(
+                                    fontSize: (subtitleSize * 0.9).clamp(12, 16),
+                                    color: Colors.grey[600],
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Sign In',
+                                    style: TextStyle(
+                                      fontSize: (subtitleSize * 0.9).clamp(12, 16),
+                                      color: Colors.purple,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
