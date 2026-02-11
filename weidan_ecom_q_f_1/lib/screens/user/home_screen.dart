@@ -99,6 +99,221 @@ class _HomeContentState extends State<HomeContent> {
   final ProductService _productService = ProductService();
   String _selectedCategory = 'All';
   final List<String> _categories = AppConstants.categories;
+  String _selectedState = 'Tamil Nadu';
+  RangeValues _priceRange = RangeValues(0, 10000);
+  String _sortBy = 'Newest';
+  
+  final List<String> _indianStates = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  ];
+
+  void _showFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Filters',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'SF Pro Display',
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Category',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'SF Pro Display',
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _categories.map((category) {
+                          return ChoiceChip(
+                            label: Text(category),
+                            selected: _selectedCategory == category,
+                            onSelected: (selected) {
+                              setModalState(() {
+                                setState(() {
+                                  _selectedCategory = category;
+                                });
+                              });
+                            },
+                            selectedColor: Colors.black,
+                            labelStyle: TextStyle(
+                              color: _selectedCategory == category ? Colors.white : Colors.black,
+                              fontFamily: 'SF Pro Display',
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        'Price Range',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'SF Pro Display',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      RangeSlider(
+                        values: _priceRange,
+                        min: 0,
+                        max: 10000,
+                        divisions: 100,
+                        activeColor: Colors.black,
+                        labels: RangeLabels(
+                          '₹${_priceRange.start.round()}',
+                          '₹${_priceRange.end.round()}',
+                        ),
+                        onChanged: (values) {
+                          setModalState(() {
+                            setState(() {
+                              _priceRange = values;
+                            });
+                          });
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('₹${_priceRange.start.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
+                          Text('₹${_priceRange.end.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
+                        ],
+                      ),
+                      SizedBox(height: 24),
+                      Text(
+                        'Sort By',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'SF Pro Display',
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      ...['Newest', 'Price: Low to High', 'Price: High to Low', 'Popular'].map((sort) {
+                        return RadioListTile<String>(
+                          title: Text(sort, style: TextStyle(fontFamily: 'SF Pro Display')),
+                          value: sort,
+                          groupValue: _sortBy,
+                          activeColor: Colors.black,
+                          onChanged: (value) {
+                            setModalState(() {
+                              setState(() {
+                                _sortBy = value!;
+                              });
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          setModalState(() {
+                            setState(() {
+                              _selectedCategory = 'All';
+                              _priceRange = RangeValues(0, 10000);
+                              _sortBy = 'Newest';
+                            });
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Colors.black),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'SF Pro Display',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Apply',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'SF Pro Display',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,17 +348,30 @@ class _HomeContentState extends State<HomeContent> {
                       children: [
                         Icon(Icons.location_on, color: Colors.red, size: iconSize.clamp(20, 26)),
                         SizedBox(width: screenWidth * 0.02),
-                        Expanded(
-                          child: Text(
-                            'TamilNadu, India',
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedState,
+                            icon: Icon(Icons.arrow_drop_down, color: Colors.black, size: iconSize.clamp(20, 26)),
                             style: TextStyle(
                               fontSize: fontSize.clamp(13, 16),
                               fontWeight: FontWeight.w600,
                               fontFamily: 'SF Pro Display',
+                              color: Colors.black,
                             ),
-                            overflow: TextOverflow.ellipsis,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedState = newValue!;
+                              });
+                            },
+                            items: _indianStates.map<DropdownMenuItem<String>>((String state) {
+                              return DropdownMenuItem<String>(
+                                value: state,
+                                child: Text(state),
+                              );
+                            }).toList(),
                           ),
                         ),
+                        Spacer(),
                         Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -203,22 +431,25 @@ class _HomeContentState extends State<HomeContent> {
                           ),
                         ),
                         SizedBox(width: screenWidth * 0.025),
-                        Container(
-                          padding: EdgeInsets.all((screenWidth * 0.03).clamp(12, 16)),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.black, Colors.grey[800]!],
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
+                        GestureDetector(
+                          onTap: _showFilterDialog,
+                          child: Container(
+                            padding: EdgeInsets.all((screenWidth * 0.03).clamp(12, 16)),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.black, Colors.grey[800]!],
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(Icons.tune, color: Colors.white, size: (screenWidth * 0.055).clamp(20, 26)),
                           ),
-                          child: Icon(Icons.tune, color: Colors.white, size: (screenWidth * 0.055).clamp(20, 26)),
                         ),
                       ],
                     ),
@@ -309,10 +540,10 @@ class _HomeContentState extends State<HomeContent> {
                       scrollDirection: Axis.horizontal,
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        _buildCategoryIcon(Icons.checkroom, 'T-Shirt', iconSize),
-                        _buildCategoryIcon(Icons.sports_tennis, 'Tape', iconSize),
-                        _buildCategoryIcon(Icons.sports, 'Socks', iconSize),
-                        _buildCategoryIcon(Icons.sports_baseball, 'Shuttle', iconSize),
+                        _buildCategoryIcon('assets/icon/T-shirt icon.jpg', 'T-Shirt', iconSize),
+                        _buildCategoryIcon('assets/icon/tape_icon.png', 'Tape', iconSize),
+                        _buildCategoryIcon('assets/icon/socks_icon.png', 'Socks', iconSize),
+                        _buildCategoryIcon('assets/icon/shuttlecock_icon.jpg', 'Shuttle', iconSize),
                       ],
                     ),
                   );
@@ -420,7 +651,7 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-  Widget _buildCategoryIcon(IconData icon, String label, double size) {
+  Widget _buildCategoryIcon(String imagePath, String label, double size) {
     return Padding(
       padding: EdgeInsets.only(right: 14),
       child: Column(
@@ -444,7 +675,15 @@ class _HomeContentState extends State<HomeContent> {
                 ),
               ],
             ),
-            child: Icon(icon, size: (size * 0.4).clamp(26, 38), color: Colors.black),
+            child: ClipOval(
+              child: Padding(
+                padding: EdgeInsets.all((size * 0.15).clamp(10, 13)),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
           SizedBox(height: 6),
           Text(
