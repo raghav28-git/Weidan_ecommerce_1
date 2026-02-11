@@ -7,15 +7,25 @@ import 'product_detail_screen.dart';
 import 'home_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
+  final String? selectedCategory;
+  
+  const CategoriesScreen({Key? key, this.selectedCategory}) : super(key: key);
+  
   @override
   _CategoriesScreenState createState() => _CategoriesScreenState();
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   final ProductService _productService = ProductService();
-  String _selectedCategory = 'All';
+  late String _selectedCategory;
   
   final List<String> _categories = AppConstants.categoriesWithAll;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.selectedCategory ?? 'All';
+  }
 
   @override
   Widget build(BuildContext context) {

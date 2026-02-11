@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: EdgeInsets.all(margin.clamp(12, 24)),
             height: height.clamp(60, 80),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Colors.black.withOpacity(0.9),
               borderRadius: BorderRadius.circular(height.clamp(60, 80) / 2),
               boxShadow: [
                 BoxShadow(
@@ -333,30 +333,30 @@ class _HomeContentState extends State<HomeContent> {
                   final iconSize = screenWidth * 0.055;
                   
                   return Container(
-                    padding: EdgeInsets.all(padding.clamp(14, 20)),
+                    padding: EdgeInsets.all(padding.clamp(16, 22)),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: Offset(0, 2),
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: Offset(0, 1),
                         ),
                       ],
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.location_on, color: Colors.red, size: iconSize.clamp(20, 26)),
-                        SizedBox(width: screenWidth * 0.02),
+                        Icon(Icons.location_on, color: Color(0xFFFF5252), size: iconSize.clamp(22, 28)),
+                        SizedBox(width: screenWidth * 0.015),
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedState,
-                            icon: Icon(Icons.arrow_drop_down, color: Colors.black, size: iconSize.clamp(20, 26)),
+                            icon: Icon(Icons.arrow_drop_down, color: Colors.black87, size: iconSize.clamp(22, 28)),
                             style: TextStyle(
                               fontSize: fontSize.clamp(13, 16),
                               fontWeight: FontWeight.w600,
                               fontFamily: 'SF Pro Display',
-                              color: Colors.black,
+                              color: Colors.black87,
                             ),
                             onChanged: (String? newValue) {
                               setState(() {
@@ -373,12 +373,12 @@ class _HomeContentState extends State<HomeContent> {
                         ),
                         Spacer(),
                         Container(
-                          padding: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: Color(0xFFF5F5F5),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.notifications_outlined, color: Colors.black, size: iconSize.clamp(20, 24)),
+                          child: Icon(Icons.notifications_outlined, color: Colors.black87, size: iconSize.clamp(20, 24)),
                         ).onTap(() {
                           Navigator.push(
                             context,
@@ -399,29 +399,34 @@ class _HomeContentState extends State<HomeContent> {
                   final fontSize = screenWidth * 0.038;
                   
                   return Container(
-                    padding: EdgeInsets.all(padding.clamp(14, 20)),
+                    padding: EdgeInsets.only(
+                      left: padding.clamp(16, 22),
+                      right: padding.clamp(16, 22),
+                      top: padding.clamp(12, 16),
+                      bottom: padding.clamp(16, 22),
+                    ),
                     color: Colors.white,
                     child: Row(
                       children: [
                         Expanded(
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: padding.clamp(14, 18),
-                              vertical: padding.clamp(12, 16),
+                              horizontal: padding.clamp(16, 20),
+                              vertical: padding.clamp(14, 18),
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey[200]!),
+                              color: Color(0xFFF8F8F8),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Color(0xFFEEEEEE)),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.search, color: Colors.grey[600], size: (screenWidth * 0.055).clamp(20, 26)),
-                                SizedBox(width: screenWidth * 0.025),
+                                Icon(Icons.search, color: Colors.grey[500], size: (screenWidth * 0.055).clamp(22, 28)),
+                                SizedBox(width: screenWidth * 0.03),
                                 Text(
                                   'Search products...',
                                   style: TextStyle(
-                                    color: Colors.grey[600],
+                                    color: Colors.grey[500],
                                     fontSize: fontSize.clamp(14, 17),
                                     fontFamily: 'SF Pro Display',
                                   ),
@@ -430,25 +435,23 @@ class _HomeContentState extends State<HomeContent> {
                             ),
                           ),
                         ),
-                        SizedBox(width: screenWidth * 0.025),
+                        SizedBox(width: screenWidth * 0.03),
                         GestureDetector(
                           onTap: _showFilterDialog,
                           child: Container(
-                            padding: EdgeInsets.all((screenWidth * 0.03).clamp(12, 16)),
+                            padding: EdgeInsets.all((screenWidth * 0.035).clamp(14, 18)),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.black, Colors.grey[800]!],
-                              ),
-                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
                                 ),
                               ],
                             ),
-                            child: Icon(Icons.tune, color: Colors.white, size: (screenWidth * 0.055).clamp(20, 26)),
+                            child: Icon(Icons.tune, color: Colors.white, size: (screenWidth * 0.055).clamp(22, 28)),
                           ),
                         ),
                       ],
@@ -457,7 +460,7 @@ class _HomeContentState extends State<HomeContent> {
                 },
               ),
               
-              SizedBox(height: 20),
+              SizedBox(height: 16),
               
               // Promotional Banner
               LayoutBuilder(
@@ -481,21 +484,22 @@ class _HomeContentState extends State<HomeContent> {
                 },
               ),
               
-              SizedBox(height: 28),
+              SizedBox(height: 24),
               
               // Category Section
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 18),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Category',
+                      'Categories',
                       style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
                         fontFamily: 'SF Pro Display',
                         letterSpacing: -0.5,
+                        color: Colors.black87,
                       ),
                     ),
                     GestureDetector(
@@ -506,10 +510,10 @@ class _HomeContentState extends State<HomeContent> {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.black,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           'See All',
@@ -526,7 +530,7 @@ class _HomeContentState extends State<HomeContent> {
                 ),
               ),
               
-              SizedBox(height: 18),
+              SizedBox(height: 16),
               
               // Category Icons
               LayoutBuilder(
@@ -535,38 +539,39 @@ class _HomeContentState extends State<HomeContent> {
                   final iconSize = screenWidth * 0.16;
                   
                   return SizedBox(
-                    height: (iconSize * 1.4).clamp(90, 120),
+                    height: (iconSize * 1.4).clamp(95, 125),
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 18),
                       children: [
-                        _buildCategoryIcon('assets/icon/T-shirt icon.jpg', 'T-Shirt', iconSize),
-                        _buildCategoryIcon('assets/icon/tape_icon.png', 'Tape', iconSize),
-                        _buildCategoryIcon('assets/icon/socks_icon.png', 'Socks', iconSize),
-                        _buildCategoryIcon('assets/icon/shuttlecock_icon.jpg', 'Shuttle', iconSize),
+                        _buildCategoryIcon('assets/icon/T-shirt icon.jpg', 'T-Shirt', iconSize, 'T-Shirt'),
+                        _buildCategoryIcon('assets/icon/tape_icon.png', 'Tape', iconSize, 'Tape'),
+                        _buildCategoryIcon('assets/icon/socks_icon.png', 'Socks', iconSize, 'Socks'),
+                        _buildCategoryIcon('assets/icon/shuttlecock_icon.jpg', 'Shuttle', iconSize, 'Shuttle'),
                       ],
                     ),
                   );
                 },
               ),
               
-              SizedBox(height: 28),
+              SizedBox(height: 24),
               
               // Featured Products
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 18),
                 child: Text(
                   'Featured Products',
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
                     fontFamily: 'SF Pro Display',
                     letterSpacing: -0.5,
+                    color: Colors.black87,
                   ),
                 ),
               ),
               
-              SizedBox(height: 18),
+              SizedBox(height: 16),
               
               // Products Grid
               StreamBuilder<List<ProductModel>>(
@@ -651,51 +656,58 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-  Widget _buildCategoryIcon(String imagePath, String label, double size) {
-    return Padding(
-      padding: EdgeInsets.only(right: 14),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: size.clamp(65, 85),
-            height: size.clamp(65, 85),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.grey[50]!],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ClipOval(
-              child: Padding(
-                padding: EdgeInsets.all((size * 0.15).clamp(10, 13)),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+  Widget _buildCategoryIcon(String imagePath, String label, double size, String category) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoriesScreen(selectedCategory: category),
           ),
-          SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: (size * 0.14).clamp(11, 14),
-              fontWeight: FontWeight.w600,
-              fontFamily: 'SF Pro Display',
+        );
+      },
+      child: Padding(
+        padding: EdgeInsets.only(right: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: size.clamp(68, 88),
+              height: size.clamp(68, 88),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 15,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Padding(
+                  padding: EdgeInsets.all((size * 0.15).clamp(10, 13)),
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+            SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: (size * 0.14).clamp(12, 15),
+                fontWeight: FontWeight.w600,
+                fontFamily: 'SF Pro Display',
+                color: Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
