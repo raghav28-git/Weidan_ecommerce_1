@@ -13,20 +13,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
 
+  static const _bg = Color(0xFF0B0B0B);
+  static const _border = Color(0xFF2A2A2A);
+  static const _textPrimary = Colors.white;
+  static const _textMuted = Color(0xFF6B7280);
+
   _sendResetCode() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      
       try {
         await _authService.resetPassword(_emailController.text.trim());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Password reset code sent to your email'),
             backgroundColor: Colors.green,
           ),
         );
-        
-        // Navigate to OTP verification screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -43,7 +45,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         );
       }
-      
       setState(() => _isLoading = false);
     }
   }
@@ -51,150 +52,181 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _bg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back arrow
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.arrow_back, color: Colors.black),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
+        child: Column(
+          children: [
+            // Back button
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 4),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
-              
-              SizedBox(height: 40),
-              
-              // Illustration
-              Center(
-                child: Container(
-                  width: 200,
-                  height: 150,
-                  child: Icon(
-                    Icons.help_outline,
-                    size: 120,
-                    color: Colors.purple.withOpacity(0.7),
+            ),
+
+            // Scrollable content
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header
+                          const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w700,
+                              color: _textPrimary,
+                              fontFamily: 'SF Pro Display',
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Subtitle
+                          Text(
+                            'Enter the email linked to your account and we\'ll send you a reset code.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _textMuted,
+                              fontFamily: 'SF Pro Display',
+                              height: 1.5,
+                            ),
+                          ),
+
+                          const SizedBox(height: 36),
+
+                          // Email label
+                          const Text(
+                            'Email',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: _textPrimary,
+                              fontFamily: 'SF Pro Display',
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // Email input
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontFamily: 'SF Pro Display',
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'hello@gmail.com',
+                              hintStyle: const TextStyle(
+                                color: Color(0xFF4B5563),
+                                fontSize: 15,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFF1A1A1A),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFF2A2A2A)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFF2A2A2A)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF3F3F3F), width: 1.5),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFFEF4444)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFFEF4444), width: 1.5),
+                              ),
+                              errorStyle: const TextStyle(
+                                  color: Color(0xFFEF4444)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty)
+                                return 'Enter your email';
+                              if (!value.contains('@'))
+                                return 'Enter a valid email';
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Send Code button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _sendResetCode,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFF5F5F5),
+                                foregroundColor: Colors.black,
+                                disabledBackgroundColor:
+                                    const Color(0xFFF5F5F5).withOpacity(0.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.black54,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Send Code',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'SF Pro Display',
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-              
-              SizedBox(height: 40),
-              
-              // Title
-              Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'Montserrat',
-                ),
-              ),
-              
-              SizedBox(height: 16),
-              
-              // Guidance Text
-              Text(
-                'Don\'t worry! It occurs. Please enter the email address linked with your account.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  fontFamily: 'Montserrat',
-                  height: 1.4,
-                ),
-              ),
-              
-              SizedBox(height: 40),
-              
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Email Label
-                    Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 8),
-                    
-                    // Email Input Field
-                    TextFormField(
-                      controller: _emailController,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 16,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Enter your email',
-                        hintStyle: TextStyle(
-                          color: Colors.grey[500],
-                          fontFamily: 'Montserrat',
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.purple, width: 2),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Enter your email';
-                        if (!value.contains('@')) return 'Enter a valid email';
-                        return null;
-                      },
-                    ),
-                    
-                    SizedBox(height: 40),
-                    
-                    // Send Code button
-                    GestureDetector(
-                      onTap: _isLoading ? null : _sendResetCode,
-                      child: Container(
-                        width: double.infinity,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.purple,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  'Send Code',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

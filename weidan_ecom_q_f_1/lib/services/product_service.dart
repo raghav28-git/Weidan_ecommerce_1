@@ -58,4 +58,86 @@ class ProductService {
   Future<void> updateStock(String productId, int newStock) async {
     await _firestore.collection('products').doc(productId).update({'stock': newStock});
   }
+
+  Future<void> seedProducts() async {
+    final existing = await _firestore.collection('products').limit(1).get();
+    if (existing.docs.isNotEmpty) return;
+
+    final products = [
+      ProductModel(
+        id: '',
+        name: '2.0 Air Shuttle',
+        category: 'Shuttle',
+        description: 'High-performance featherless shuttlecock designed for consistent flight and durability.',
+        price: 450.00,
+        imageUrl: 'assets/products_image/2.0 Air Shuttle.jpg',
+        stock: 50,
+        sizes: [],
+      ),
+      ProductModel(
+        id: '',
+        name: 'Flight Wing 350',
+        category: 'Shuttle',
+        description: 'Premium badminton shuttlecock with stable trajectory and excellent speed control.',
+        price: 380.00,
+        imageUrl: 'assets/products_image/Flight Wing 350.jpg',
+        stock: 40,
+        sizes: [],
+      ),
+      ProductModel(
+        id: '',
+        name: 'Kinesiology Tape',
+        category: 'Tape',
+        description: 'Elastic sports tape for muscle support, pain relief, and injury prevention during play.',
+        price: 299.00,
+        imageUrl: 'assets/products_image/kinesiology Tape.jpg',
+        stock: 100,
+        sizes: [],
+      ),
+      ProductModel(
+        id: '',
+        name: 'MULT 2 Feather Shuttle',
+        category: 'Shuttle',
+        description: 'Natural feather shuttlecock offering superior flight accuracy for competitive play.',
+        price: 620.00,
+        imageUrl: 'assets/products_image/MULT 2 Feather shuttle.jpg',
+        stock: 30,
+        sizes: [],
+      ),
+      ProductModel(
+        id: '',
+        name: 'Weidan T-Shirt',
+        category: 'T-Shirt',
+        description: 'Lightweight breathable sports T-shirt designed for comfort and performance on the court.',
+        price: 799.00,
+        imageUrl: 'assets/products_image/Weidan T-Shirt.jpg',
+        stock: 60,
+        sizes: ['S', 'M', 'L', 'XL'],
+      ),
+    ];
+
+    for (final product in products) {
+      await _firestore.collection('products').add(product.toMap());
+    }
+  }
+
+  Future<void> syncProductImages() async {
+    final imageMap = {
+      '2.0 Air Shuttle': 'assets/products_image/2.0 Air Shuttle.jpg',
+      'Flight Wing 350': 'assets/products_image/Flight Wing 350.jpg',
+      'Kinesiology Tape': 'assets/products_image/kinesiology Tape.jpg',
+      'MULT 2 Feather Shuttle': 'assets/products_image/MULT 2 Feather shuttle.jpg',
+      'Weidan T-Shirt': 'assets/products_image/Weidan T-Shirt.jpg',
+    };
+
+    final snapshot = await _firestore.collection('products').get();
+    for (final doc in snapshot.docs) {
+      final name = doc.data()['name'] as String? ?? '';
+      final currentUrl = doc.data()['imageUrl'] as String? ?? '';
+      final assetPath = imageMap[name];
+      if (assetPath != null && currentUrl != assetPath) {
+        await doc.reference.update({'imageUrl': assetPath});
+      }
+    }
+  }
 }

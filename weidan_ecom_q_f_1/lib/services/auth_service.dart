@@ -57,6 +57,33 @@ class AuthService {
         if (doc.exists) {
           return UserModel.fromMap(doc.data() as Map<String, dynamic>);
         }
+        // Doc missing — create it on the fly
+        String role = _adminEmails.contains(email) ? 'admin' : 'user';
+        UserModel userModel = UserModel(
+          uid: user.uid,
+          name: user.displayName ?? '',
+          email: email,
+          role: role,
+          createdAt: DateTime.now(),
+        );
+        await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
+        return userModel;
+      }
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw Exception('No account found for this email.');
+        case 'wrong-password':
+        case 'invalid-credential':
+          throw Exception('Incorrect password. Please try again.');
+        case 'invalid-email':
+          throw Exception('Invalid email address.');
+        case 'user-disabled':
+          throw Exception('This account has been disabled.');
+        case 'too-many-requests':
+          throw Exception('Too many attempts. Please try again later.');
+        default:
+          throw Exception(e.message ?? 'Login failed.');
       }
     } catch (e) {
       throw e;

@@ -6,36 +6,38 @@ class GetStartedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          // Image section (upper part)
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-              ),
-              child: Image.asset(
-                'assets/getstarted.jpeg',
-                fit: BoxFit.cover,
-              ),
+          // Full screen image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/getstarted.jpg',
+              fit: BoxFit.contain,
+              alignment: Alignment.topCenter,
             ),
           ),
-          
-          // White container at bottom
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            padding: EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
+
+          // Bottom white sheet with rounded top corners
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(30, 32, 30, 40),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   // Headline
-                  Text(
+                  const Text(
                     'Where Passion\nMeets Performance',
                     style: TextStyle(
                       fontSize: 32,
@@ -46,34 +48,33 @@ class GetStartedScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
-                  SizedBox(height: 24),
-                  
+
+                  const SizedBox(height: 16),
+
                   // Subtitle
                   Text(
                     'Shop the Best Badminton Gear,\nOwn Every Smash.',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: Colors.grey[600],
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
-                  SizedBox(height: 40),
-                  
-                  // Get Started button
+
+                  const SizedBox(height: 32),
+
+                  // Sign Up button
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => SignUpScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child);
-                          },
-                          transitionDuration: Duration(milliseconds: 500),
+                          pageBuilder: (context, animation, _) => SignUpScreen(),
+                          transitionsBuilder: (context, animation, _, child) =>
+                              FadeTransition(opacity: animation, child: child),
+                          transitionDuration: const Duration(milliseconds: 500),
                         ),
                       );
                     },
@@ -84,7 +85,7 @@ class GetStartedScreen extends StatelessWidget {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Sign Up',
                           style: TextStyle(
@@ -97,20 +98,19 @@ class GetStartedScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
-                  SizedBox(height: 20),
-                  
+
+                  const SizedBox(height: 20),
+
                   // Sign in link
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child);
-                          },
-                          transitionDuration: Duration(milliseconds: 500),
+                          pageBuilder: (context, animation, _) => LoginScreen(),
+                          transitionsBuilder: (context, animation, _, child) =>
+                              FadeTransition(opacity: animation, child: child),
+                          transitionDuration: const Duration(milliseconds: 500),
                         ),
                       );
                     },
@@ -127,8 +127,9 @@ class GetStartedScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
         ],
       ),
     );
   }
-}
+ }

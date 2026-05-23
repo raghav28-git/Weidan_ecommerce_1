@@ -3,6 +3,8 @@ class OrderItem {
   final String productName;
   final int quantity;
   final double price;
+  final double? originalPrice;
+  final String? imageUrl;
   final String? size;
 
   OrderItem({
@@ -10,6 +12,8 @@ class OrderItem {
     required this.productName,
     required this.quantity,
     required this.price,
+    this.originalPrice,
+    this.imageUrl,
     this.size,
   });
 
@@ -19,6 +23,10 @@ class OrderItem {
       productName: map['productName'] ?? '',
       quantity: map['quantity'] ?? 0,
       price: (map['price'] ?? 0).toDouble(),
+      originalPrice: map['originalPrice'] != null
+          ? (map['originalPrice'] as num).toDouble()
+          : null,
+      imageUrl: map['imageUrl'],
       size: map['size'],
     );
   }
@@ -29,6 +37,8 @@ class OrderItem {
       'productName': productName,
       'quantity': quantity,
       'price': price,
+      if (originalPrice != null) 'originalPrice': originalPrice,
+      if (imageUrl != null) 'imageUrl': imageUrl,
       'size': size,
     };
   }
