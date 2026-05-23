@@ -501,7 +501,7 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                 },
               ),
               
-              SizedBox(height: 100),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 94),
             ],
           ),
         ),

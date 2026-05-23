@@ -247,7 +247,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
 
           Padding(
-            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPad + 16),
+            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPad + 94),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

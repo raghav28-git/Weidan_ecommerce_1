@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/product_model.dart';
+import '../../models/order_model.dart';
 import '../../services/cart_provider.dart';
+import 'payment_screen.dart';
 
 const _productImageMap = {
   '2.0 air shuttle': 'assets/products_image/2.0 Air Shuttle.jpg',
@@ -2188,18 +2190,37 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: const [
-            Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
-            SizedBox(width: 8),
-            Text('Proceeding to checkout…'),
+
+    final p = widget.product;
+    final subtotal    = p.price;
+    final discount    = p.originalPrice != null && p.originalPrice! > p.price
+        ? p.originalPrice! - p.price
+        : 0.0;
+    final deliveryFee = subtotal >= 499 ? 0.0 : 49.0;
+    final tax         = (subtotal * 0.05);
+    final grandTotal  = subtotal + deliveryFee + tax;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentScreen(
+          items: [
+            OrderItem(
+              productId:     p.id,
+              productName:   p.name,
+              quantity:      1,
+              price:         p.price,
+              size:          _selectedSize,
+              imageUrl:      p.imageUrl,
+              originalPrice: p.originalPrice,
+            ),
           ],
+          subtotal:    subtotal,
+          discount:    discount,
+          deliveryFee: deliveryFee,
+          tax:         tax,
+          grandTotal:  grandTotal,
         ),
-        backgroundColor: const Color(0xFF111111),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

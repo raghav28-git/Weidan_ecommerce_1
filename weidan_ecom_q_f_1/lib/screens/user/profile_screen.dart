@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       _StickyAppBar(topPad: top, hPad: hPad, onBack: _goHome),
                       SliverPadding(
                         padding: EdgeInsets.fromLTRB(
-                            hPad, 8, hPad, bottom + 24),
+                            hPad, 8, hPad, bottom + 94),
                         sliver: SliverList(
                           delegate: SliverChildListDelegate([
                             _ProfileCard(user: _user!),
