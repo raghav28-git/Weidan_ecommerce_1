@@ -1,16 +1,59 @@
-# weidan_ecom_q_f_1
+# Weidan Sports — E-Commerce App
 
-A new Flutter project.
+A Flutter mobile app for **Weidan Sports**, a badminton and sports gear store. Built with Firebase for backend services.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## What It Does
 
-A few resources to get you started if this is your first Flutter project:
+- Browse and buy sports products (T-shirts, shuttlecocks, tapes, socks, and more)
+- Filter products by category, price range, and sort order
+- Add items to cart and place orders
+- Track order history and get notifications
+- Admin panel to manage products, orders, and inventory
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screens
+
+**User**
+
+- Splash, Onboarding, Get Started
+- Login, Sign Up, Forgot Password, OTP Verification
+- Home, Categories, Product Detail
+- Cart, Payment, Order History
+- Profile, Notifications, Help, About
+
+**Admin**
+
+- Dashboard with Products, Orders, and Inventory management
+
+---
+
+## Tech Stack
+
+| Layer            | Technology                               |
+| ---------------- | ---------------------------------------- |
+| Framework        | Flutter (Dart)                           |
+| Auth             | Firebase Authentication + Google Sign-In |
+| Database         | Cloud Firestore                          |
+| Storage          | Firebase Storage                         |
+| State Management | Provider                                 |
+| UI               | Material Design + SF Pro Display font    |
+
+---
+
+## Project Structure
+
+```
+lib/
+├── models/        # Data models (Product, Cart, Order, User)
+├── screens/
+│   ├── auth/      # Login, signup, onboarding screens
+│   ├── user/      # Home, cart, profile, etc.
+│   └── admin/     # Admin dashboard screens
+├── services/      # Firebase auth, product, order, cart logic
+├── widgets/       # Reusable UI components
+├── constants/     # App-wide constants
+└── utils/         # Responsive layout helpers
+```
