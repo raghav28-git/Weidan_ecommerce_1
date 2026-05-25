@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import 'login_screen.dart';
+import '../../utils/responsive.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -63,6 +64,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
@@ -86,8 +88,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: Responsive.formPadding(context),
+                      vertical: 16),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: Form(

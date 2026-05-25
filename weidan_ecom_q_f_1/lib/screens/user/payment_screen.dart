@@ -1489,21 +1489,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _productRow(OrderItem item, bool hasDiscount) {
+    final sw = MediaQuery.of(context).size.width;
+    final thumbSize = (sw * 0.135).clamp(48.0, 68.0);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Thumbnail
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: item.imageUrl != null && item.imageUrl!.isNotEmpty
-              ? Image.network(
-                  item.imageUrl!,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _thumbPlaceholder(),
-                )
-              : _thumbPlaceholder(),
+          child: SizedBox(
+            width: thumbSize,
+            height: thumbSize,
+            child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                ? Image.network(
+                    item.imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _thumbPlaceholder(thumbSize),
+                  )
+                : _thumbPlaceholder(thumbSize),
+          ),
         ),
         const SizedBox(width: 12),
         // Name + size + qty
@@ -1580,9 +1584,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _thumbPlaceholder() => Container(
-        width: 56,
-        height: 56,
+  Widget _thumbPlaceholder([double size = 56]) => Container(
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           color: const Color(0xFFF0F0F0),
           borderRadius: BorderRadius.circular(10),
@@ -1707,7 +1711,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       );
 
   // ── Place order bottom bar ──────────────────────────────────────────────────
-  Widget _buildPlaceOrderBar(double bottomPad) => Container(
+  Widget _buildPlaceOrderBar(double bottomPad) {
+    final sw = MediaQuery.of(context).size.width;
+    final totalSz = (sw * 0.056).clamp(18.0, 26.0);
+    return Container(
         padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPad + 16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -1733,10 +1740,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     )),
                 Text(
                   '₹${_effectiveTotal.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 22,
+                  style: TextStyle(
+                    fontSize: totalSz,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0D0D0D),
+                    color: const Color(0xFF0D0D0D),
                     fontFamily: 'SF Pro Display',
                     letterSpacing: -0.4,
                   ),
@@ -1807,6 +1814,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
       );
+  }
 
   // ── Place order logic ───────────────────────────────────────────────────────
   Future<void> _placeOrder() async {

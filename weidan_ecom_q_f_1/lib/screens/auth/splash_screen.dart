@@ -71,13 +71,15 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: Container(
-          width: 150,
-          height: 150,
-          child: Image.asset(
-            'assets/Logo1.png',
-            fit: BoxFit.contain,
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = (constraints.maxWidth * 0.38).clamp(100.0, 180.0);
+            return SizedBox(
+              width: size,
+              height: size,
+              child: Image.asset('assets/Logo1.png', fit: BoxFit.contain),
+            );
+          },
         ),
       ),
     );

@@ -276,8 +276,8 @@ class _ProductCardState extends State<ProductCard>
                         child: GestureDetector(
                           onTap: _toggleWishlist,
                           child: Container(
-                            width: 32,
-                            height: 32,
+                            width: 34,
+                            height: 34,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.92),
                               shape: BoxShape.circle,
@@ -369,8 +369,8 @@ class _ProductCardState extends State<ProductCard>
                               onTap: isOutOfStock ? null : _addToCart,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 150),
-                                width: 30,
-                                height: 30,
+                                width: 32,
+                                height: 32,
                                 decoration: BoxDecoration(
                                   color: isOutOfStock
                                       ? const Color(0xFFE0E0E0)

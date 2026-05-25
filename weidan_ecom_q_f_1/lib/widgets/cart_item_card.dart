@@ -287,10 +287,10 @@ class _CartItemCardState extends State<CartItemCard>
       children: [
         Text(
           '₹${item.totalPrice.toStringAsFixed(0)}',
-          style: const TextStyle(
-            fontSize: 18,
+          style: TextStyle(
+            fontSize: (MediaQuery.of(context).size.width * 0.045).clamp(15.0, 20.0),
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: const Color(0xFF111111),
             fontFamily: 'SF Pro Display',
             height: 1.0,
           ),
@@ -361,8 +361,8 @@ class _DeleteButtonState extends State<_DeleteButton> {
         scale: _pressed ? 0.88 : 1.0,
         duration: const Duration(milliseconds: 120),
         child: Container(
-          width: 30,
-          height: 30,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
             color: const Color(0xFFFFF0F0),
             borderRadius: BorderRadius.circular(8),
@@ -386,8 +386,9 @@ class _QtySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final btnSize = (MediaQuery.of(context).size.width * 0.095).clamp(36.0, 44.0);
     return Container(
-      height: 38,
+      height: btnSize,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F6F8),
         borderRadius: BorderRadius.circular(12),
@@ -402,6 +403,7 @@ class _QtySelector extends StatelessWidget {
             color: quantity == 1
                 ? const Color(0xFFE53935)
                 : const Color(0xFF333333),
+            size: btnSize,
             onTap: () => onChanged(quantity - 1),
           ),
           AnimatedSwitcher(
@@ -412,7 +414,7 @@ class _QtySelector extends StatelessWidget {
             ),
             child: SizedBox(
               key: ValueKey(quantity),
-              width: 32,
+              width: btnSize * 0.85,
               child: Text(
                 '$quantity',
                 textAlign: TextAlign.center,
@@ -428,6 +430,7 @@ class _QtySelector extends StatelessWidget {
           _Btn(
             icon: Icons.add_rounded,
             color: const Color(0xFF333333),
+            size: btnSize,
             onTap: () => onChanged(quantity + 1),
           ),
         ],
@@ -439,8 +442,9 @@ class _QtySelector extends StatelessWidget {
 class _Btn extends StatefulWidget {
   final IconData icon;
   final Color color;
+  final double size;
   final VoidCallback onTap;
-  const _Btn({required this.icon, required this.color, required this.onTap});
+  const _Btn({required this.icon, required this.color, required this.size, required this.onTap});
 
   @override
   State<_Btn> createState() => _BtnState();
@@ -462,8 +466,8 @@ class _BtnState extends State<_Btn> {
         scale: _pressed ? 0.85 : 1.0,
         duration: const Duration(milliseconds: 100),
         child: Container(
-          width: 38,
-          height: 38,
+          width: widget.size,
+          height: widget.size,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),

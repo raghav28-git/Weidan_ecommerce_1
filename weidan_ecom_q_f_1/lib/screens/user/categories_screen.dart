@@ -4,6 +4,7 @@ import '../../services/product_service.dart';
 import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
 import '../../constants/app_constants.dart';
+import '../../utils/responsive.dart';
 import 'product_detail_screen.dart';
 
 // ── Design tokens ────────────────────────────────────────────────────────────────
@@ -30,17 +31,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     _selectedCategory = widget.selectedCategory ?? 'All';
   }
 
-  int _crossAxisCount(double width) {
-    if (width > 900) return 4;
-    if (width > 600) return 3;
-    return 2;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final mq             = MediaQuery.of(context);
-    final safeBottom     = mq.padding.bottom;
-    final navbarClearance = safeBottom + 20 + 58 + 16.0;
+    final mq              = MediaQuery.of(context);
+    final navbarClearance  = Responsive.navBarClearance(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -86,21 +80,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     final products = snapshot.data!;
                     return LayoutBuilder(
                       builder: (context, constraints) {
-                        final sw      = constraints.maxWidth;
-                        final count   = _crossAxisCount(sw);
-                        final spacing = (sw * 0.032).clamp(12.0, 20.0);
-                        final hPad    = (sw * 0.042).clamp(14.0, 24.0);
+                        final hPad = Responsive.hPadding(context);
                         return GridView.builder(
                           padding: EdgeInsets.fromLTRB(
                               hPad, 20, hPad, navbarClearance),
                           physics: const BouncingScrollPhysics(),
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: count,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: spacing,
-                            mainAxisSpacing: spacing,
-                          ),
+                              Responsive.productGridDelegate(context),
                           itemCount: products.length,
                           itemBuilder: (context, index) => ProductCard(
                             product: products[index],

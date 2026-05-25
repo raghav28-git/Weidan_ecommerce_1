@@ -120,8 +120,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   // ── Image carousel ────────────────────────────────────────────────────────
   Widget _buildImageSection(List<String> images, double screenH) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final imageH = isLandscape
+        ? (screenH * 0.65).clamp(200.0, 360.0)
+        : (screenH * 0.46).clamp(240.0, 420.0);
     return Container(
-      height: screenH * 0.50,
+      height: imageH,
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
@@ -589,8 +593,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   onTap: () => setState(() => _isWishlisted = !_isWishlisted),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: 52,
-                    height: 52,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: _isWishlisted
                           ? const Color(0xFFFFEBEE)
@@ -983,7 +987,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 130,
+              width: (MediaQuery.of(context).size.width * 0.30).clamp(110.0, 150.0),
               child: Text(label,
                   style: const TextStyle(
                       fontSize: 12,
@@ -1200,9 +1204,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _featureChip(_FeatureChip f) {
-    return Container(
-      width: 100,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    return LayoutBuilder(
+      builder: (context, _) {
+        final w = (MediaQuery.of(context).size.width * 0.24).clamp(88.0, 120.0);
+        return Container(
+          width: w,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1243,6 +1250,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 
@@ -2005,9 +2014,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildRelatedCard(_RelatedProduct p) {
     final isWishlisted = _relatedWishlisted.contains(p.id);
     final discountPct = (((p.originalPrice - p.price) / p.originalPrice) * 100).round();
+    final cardW = (MediaQuery.of(context).size.width * 0.38).clamp(140.0, 180.0);
 
     return Container(
-      width: 155,
+      width: cardW,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

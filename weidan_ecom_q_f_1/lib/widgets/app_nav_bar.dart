@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../utils/responsive.dart';
 
 // ── Nav item model ──────────────────────────────────────────────────────────────
 class _NavItem {
@@ -17,7 +18,6 @@ const _kGlass = Color(0xE8181C20);  // 91% opaque dark charcoal
 // ── Dimensions ──────────────────────────────────────────────────────────────────
 const _pillH   = 58.0;
 const _activeH = 38.0;
-const _activeW = 54.0;
 
 const _items = [
   _NavItem(icon: Icons.home_outlined,          activeIcon: Icons.home_rounded,         label: 'Home'),
@@ -135,10 +135,10 @@ class _AppNavBarState extends State<AppNavBar> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    // Pill width: full width minus 48px total side margin (24px each side)
-    final pillW = (screenW - 48).clamp(280.0, 400.0);
-    final itemW = pillW / _items.length;
+    final pillW  = Responsive.navBarPillWidth(context);
+    final itemW  = pillW / _items.length;
+    final activeW = (itemW * 0.72).clamp(44.0, 64.0);
+    final iconSz  = Responsive.isTablet(context) ? 26.0 : 24.0;
 
     return AnimatedBuilder(
       animation: _entranceAnim,
@@ -199,8 +199,8 @@ class _AppNavBarState extends State<AppNavBar> with TickerProviderStateMixin {
             AnimatedBuilder(
               animation: Listenable.merge([_pillAnim, _squishAnim, _glowAnim]),
               builder: (_, __) {
-                final fromX  = _prevIndex * itemW + (itemW - _activeW) / 2;
-                final toX    = widget.currentIndex * itemW + (itemW - _activeW) / 2;
+                final fromX  = _prevIndex * itemW + (itemW - activeW) / 2;
+                final toX    = widget.currentIndex * itemW + (itemW - activeW) / 2;
                 final x      = _lerpDouble(fromX, toX, _pillAnim.value);
                 final top    = (_pillH - _activeH) / 2;
                 final scaleX = _squishAnim.value;
@@ -213,7 +213,7 @@ class _AppNavBarState extends State<AppNavBar> with TickerProviderStateMixin {
                     scaleX: scaleX,
                     scaleY: 1.0,
                     child: Container(
-                      width: _activeW,
+                      width: activeW,
                       height: _activeH,
                       decoration: BoxDecoration(
                         color: _kNeon,
@@ -270,10 +270,10 @@ class _AppNavBarState extends State<AppNavBar> with TickerProviderStateMixin {
                                 child: Icon(
                                   isActive ? _items[i].activeIcon : _items[i].icon,
                                   key: ValueKey(isActive),
-                                  size: 24,
+                                  size: iconSz,
                                   color: isActive
-                                      ? const Color(0xFF0D0D0D)   // deep charcoal on neon pill
-                                      : const Color(0xFF6B7280),  // soft cool-gray on dark glass
+                                      ? const Color(0xFF0D0D0D)
+                                      : const Color(0xFF6B7280),
                                 ),
                               ),
                             ),

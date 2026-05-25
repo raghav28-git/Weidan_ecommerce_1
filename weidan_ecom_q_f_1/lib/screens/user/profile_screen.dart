@@ -261,6 +261,10 @@ class _ProfileCard extends StatelessWidget {
     final initials    = user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U';
     final isAdmin     = user.role == 'admin';
     final memberSince = user.createdAt.year.toString();
+    final sw          = MediaQuery.of(context).size.width;
+    final avatarSize  = (sw * 0.155).clamp(52.0, 72.0);
+    final nameSz      = (sw * 0.048).clamp(15.0, 20.0);
+    final emailSz     = (sw * 0.030).clamp(11.0, 13.0);
 
     return Container(
       width: double.infinity,
@@ -283,8 +287,8 @@ class _ProfileCard extends StatelessWidget {
             children: [
               // Avatar
               Container(
-                width: 64,
-                height: 64,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
@@ -292,10 +296,10 @@ class _ProfileCard extends StatelessWidget {
                 child: Center(
                   child: Text(
                     initials,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: avatarSize * 0.38,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0D0D0D),
+                      color: const Color(0xFF0D0D0D),
                       fontFamily: 'SF Pro Display',
                     ),
                   ),
@@ -308,24 +312,26 @@ class _ProfileCard extends StatelessWidget {
                   children: [
                     Text(
                       user.name,
-                      style: const TextStyle(
-                        fontSize: 19,
+                      style: TextStyle(
+                        fontSize: nameSz,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         fontFamily: 'SF Pro Display',
                         letterSpacing: -0.4,
                       ),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                     const SizedBox(height: 3),
                     Text(
                       user.email,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: emailSz,
                         color: Colors.white.withValues(alpha: 0.65),
                         fontFamily: 'SF Pro Display',
                       ),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -446,14 +452,17 @@ class _StatItem extends StatelessWidget {
           children: [
             Icon(icon, size: 17, color: _kAccent),
             const SizedBox(height: 5),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: _kPrimary,
-                fontFamily: 'SF Pro Display',
-                letterSpacing: -0.5,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: _kPrimary,
+                  fontFamily: 'SF Pro Display',
+                  letterSpacing: -0.5,
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -464,6 +473,7 @@ class _StatItem extends StatelessWidget {
                 color: _kSecondary,
                 fontFamily: 'SF Pro Display',
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

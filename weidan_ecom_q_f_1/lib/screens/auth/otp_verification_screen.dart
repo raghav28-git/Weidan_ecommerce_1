@@ -187,54 +187,57 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         const SizedBox(height: 40),
 
                         // OTP boxes
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(6, (index) {
-                            return SizedBox(
-                              width: 48,
-                              height: 56,
-                              child: TextFormField(
-                                controller: _controllers[index],
-                                focusNode: _focusNodes[index],
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
-                                maxLength: 1,
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontFamily: 'SF Pro Display',
-                                ),
-                                decoration: InputDecoration(
-                                  counterText: '',
-                                  filled: true,
-                                  fillColor: const Color(0xFF1A1A1A),
-                                  contentPadding: EdgeInsets.zero,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFF2A2A2A)),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final boxW = ((constraints.maxWidth - 40) / 6).clamp(36.0, 52.0);
+                            final boxH = boxW * 1.15;
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(6, (index) {
+                                return SizedBox(
+                                  width: boxW,
+                                  height: boxH,
+                                  child: TextFormField(
+                                    controller: _controllers[index],
+                                    focusNode: _focusNodes[index],
+                                    textAlign: TextAlign.center,
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 1,
+                                    style: TextStyle(
+                                      fontSize: (boxW * 0.44).clamp(16.0, 24.0),
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      fontFamily: 'SF Pro Display',
+                                    ),
+                                    decoration: InputDecoration(
+                                      counterText: '',
+                                      filled: true,
+                                      fillColor: const Color(0xFF1A1A1A),
+                                      contentPadding: EdgeInsets.zero,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: Color(0xFF3F3F3F), width: 1.5),
+                                      ),
+                                    ),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() => _onDigitChanged(index, value));
+                                    },
                                   ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFF2A2A2A)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFF3F3F3F), width: 1.5),
-                                  ),
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                onChanged: (value) {
-                                  setState(() => _onDigitChanged(index, value));
-                                },
-                              ),
+                                );
+                              }),
                             );
-                          }),
+                          },
                         ),
 
                         const SizedBox(height: 32),

@@ -5,6 +5,7 @@ import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/app_nav_bar.dart';
 import '../../constants/app_constants.dart';
+import '../../utils/responsive.dart';
 import 'categories_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -43,15 +44,16 @@ class _HomeScreenState extends State<HomeScreen> {
             index: _currentIndex,
             children: _screens,
           ),
-          // ── Floating navbar — centred, 24px from each side, 20px above
-          //    the home indicator (or 20px from the physical bottom edge) ──
+          // ── Floating navbar — centred, uses Responsive helpers ────────────────────────
           Positioned(
-            left: 24,
-            right: 24,
-            bottom: (bottomPad > 0 ? bottomPad : 0) + 20,
-            child: AppNavBar(
-              currentIndex: _currentIndex,
-              onTap: (i) => setState(() => _currentIndex = i),
+            left: 0,
+            right: 0,
+            bottom: Responsive.navBarBottom(context),
+            child: Center(
+              child: AppNavBar(
+                currentIndex: _currentIndex,
+                onTap: (i) => setState(() => _currentIndex = i),
+              ),
             ),
           ),
         ],
@@ -109,199 +111,215 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.75,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Filters',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'SF Pro Display',
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
+        builder: (context, setModalState) {
+          final sheetW = Responsive.modalWidth(context);
+          final sw     = MediaQuery.of(context).size.width;
+          final isWide = sheetW < sw;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth:  sheetW,
+                maxHeight: Responsive.sheetMaxHeight(context),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Category',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'SF Pro Display',
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _categories.map((category) {
-                          return ChoiceChip(
-                            label: Text(category),
-                            selected: _selectedCategory == category,
-                            onSelected: (selected) {
-                              setModalState(() {
-                                setState(() {
-                                  _selectedCategory = category;
-                                });
-                              });
-                            },
-                            selectedColor: Colors.black,
-                            labelStyle: TextStyle(
-                              color: _selectedCategory == category ? Colors.white : Colors.black,
-                              fontFamily: 'SF Pro Display',
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(height: 24),
-                      Text(
-                        'Price Range',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'SF Pro Display',
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      RangeSlider(
-                        values: _priceRange,
-                        min: 0,
-                        max: 10000,
-                        divisions: 100,
-                        activeColor: Colors.black,
-                        labels: RangeLabels(
-                          '₹${_priceRange.start.round()}',
-                          '₹${_priceRange.end.round()}',
-                        ),
-                        onChanged: (values) {
-                          setModalState(() {
-                            setState(() {
-                              _priceRange = values;
-                            });
-                          });
-                        },
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('₹${_priceRange.start.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
-                          Text('₹${_priceRange.end.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
-                        ],
-                      ),
-                      SizedBox(height: 24),
-                      Text(
-                        'Sort By',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'SF Pro Display',
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      ...[for (final sort in ['Newest', 'Price: Low to High', 'Price: High to Low', 'Popular'])
-                        RadioListTile<String>(
-                          title: Text(sort, style: TextStyle(fontFamily: 'SF Pro Display')),
-                          value: sort,
-                          groupValue: _sortBy,
-                          activeColor: Colors.black,
-                          onChanged: (value) {
-                            setModalState(() {
-                              setState(() {
-                                _sortBy = value!;
-                              });
-                            });
-                          },
-                        )],
-                    ],
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: const Radius.circular(20),
+                    bottom: isWide ? const Radius.circular(20) : Radius.zero,
                   ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                ),
-                child: Row(
+                child: Column(
                   children: [
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Filters',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'SF Pro Display',
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          setModalState(() {
-                            setState(() {
-                              _selectedCategory = 'All';
-                              _priceRange = RangeValues(0, 10000);
-                              _sortBy = 'Newest';
-                            });
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(color: Colors.black),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'Reset',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'SF Pro Display',
-                          ),
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Category',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _categories.map((category) {
+                                return ChoiceChip(
+                                  label: Text(category),
+                                  selected: _selectedCategory == category,
+                                  onSelected: (selected) {
+                                    setModalState(() {
+                                      setState(() {
+                                        _selectedCategory = category;
+                                      });
+                                    });
+                                  },
+                                  selectedColor: Colors.black,
+                                  labelStyle: TextStyle(
+                                    color: _selectedCategory == category ? Colors.white : Colors.black,
+                                    fontFamily: 'SF Pro Display',
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(height: 24),
+                            Text(
+                              'Price Range',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RangeSlider(
+                              values: _priceRange,
+                              min: 0,
+                              max: 10000,
+                              divisions: 100,
+                              activeColor: Colors.black,
+                              labels: RangeLabels(
+                                '₹${_priceRange.start.round()}',
+                                '₹${_priceRange.end.round()}',
+                              ),
+                              onChanged: (values) {
+                                setModalState(() {
+                                  setState(() {
+                                    _priceRange = values;
+                                  });
+                                });
+                              },
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('₹${_priceRange.start.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
+                                Text('₹${_priceRange.end.round()}', style: TextStyle(fontFamily: 'SF Pro Display')),
+                              ],
+                            ),
+                            SizedBox(height: 24),
+                            Text(
+                              'Sort By',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            ...[for (final sort in ['Newest', 'Price: Low to High', 'Price: High to Low', 'Popular'])
+                              RadioListTile<String>(
+                                title: Text(sort, style: TextStyle(fontFamily: 'SF Pro Display')),
+                                value: sort,
+                                groupValue: _sortBy,
+                                activeColor: Colors.black,
+                                onChanged: (value) {
+                                  setModalState(() {
+                                    setState(() {
+                                      _sortBy = value!;
+                                    });
+                                  });
+                                },
+                              )],
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                setModalState(() {
+                                  setState(() {
+                                    _selectedCategory = 'All';
+                                    _priceRange = RangeValues(0, 10000);
+                                    _sortBy = 'Newest';
+                                  });
+                                });
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                side: BorderSide(color: Colors.black),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Reset',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'SF Pro Display',
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Apply',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'SF Pro Display',
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Apply',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'SF Pro Display',
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -348,7 +366,7 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                     Text(
                       'Categories',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: (MediaQuery.of(context).size.width * 0.058).clamp(18.0, 26.0),
                         fontWeight: FontWeight.w700,
                         fontFamily: 'SF Pro Display',
                         letterSpacing: -0.5,
@@ -410,19 +428,20 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
               SizedBox(height: 24),
               
               // Featured Products
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
-                child: Text(
-                  'Featured Products',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'SF Pro Display',
-                    letterSpacing: -0.5,
-                    color: Colors.black87,
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 20.0)),
+                  child: Text(
+                    'Featured Products',
+                    style: TextStyle(
+                      fontSize: (MediaQuery.of(context).size.width * 0.058).clamp(18.0, 26.0),
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'SF Pro Display',
+                      letterSpacing: -0.5,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
-              ),
               
               SizedBox(height: 16),
               
@@ -465,21 +484,14 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                   
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      final screenWidth = constraints.maxWidth;
-                      final crossAxisCount = screenWidth > 600 ? 3 : 2;
-                      final spacing = screenWidth * 0.03;
-                      
+                      final hp = Responsive.hPadding(context);
                       return Container(
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                        padding: EdgeInsets.symmetric(horizontal: hp),
                         child: GridView.builder(
                           shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: spacing.clamp(12, 18),
-                            mainAxisSpacing: spacing.clamp(12, 18),
-                          ),
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              Responsive.productGridDelegate(context),
                           itemCount: products.length,
                           itemBuilder: (context, index) {
                             return ProductCard(
@@ -488,7 +500,8 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProductDetailScreen(product: products[index]),
+                                    builder: (context) => ProductDetailScreen(
+                                        product: products[index]),
                                   ),
                                 );
                               },
@@ -501,7 +514,7 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                 },
               ),
               
-              SizedBox(height: MediaQuery.of(context).padding.bottom + 94),
+              SizedBox(height: Responsive.navBarClearance(context)),
             ],
           ),
         ),
@@ -606,7 +619,12 @@ class _PremiumHeader extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+      padding: EdgeInsets.fromLTRB(
+        (MediaQuery.of(context).size.width * 0.05).clamp(16.0, 24.0),
+        18,
+        (MediaQuery.of(context).size.width * 0.05).clamp(16.0, 24.0),
+        22,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

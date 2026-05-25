@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../services/cart_provider.dart';
 import '../../models/order_model.dart';
 import '../../widgets/cart_item_card.dart';
+import '../../utils/responsive.dart';
 import 'home_screen.dart';
 import 'payment_screen.dart';
 
@@ -247,7 +248,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
 
           Padding(
-            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPad + 94),
+            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPad + Responsive.navBarHeight + Responsive.navBarGap + 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
