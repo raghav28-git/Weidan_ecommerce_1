@@ -278,9 +278,7 @@ class _ProductCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(14)),
               child: product.imageUrl.isNotEmpty
-                  ? Image.network(product.imageUrl,
-                      width: double.infinity, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder())
+                  ? _buildImage(product.imageUrl)
                   : _placeholder(),
             ),
           ),
@@ -342,6 +340,15 @@ class _ProductCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildImage(String url) {
+    if (url.startsWith('assets/')) {
+      return Image.asset(url, width: double.infinity, fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _placeholder());
+    }
+    return Image.network(url, width: double.infinity, fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _placeholder());
   }
 
   Widget _placeholder() => Container(
@@ -896,9 +903,12 @@ class _ImageUploadCard extends StatelessWidget {
         children: [
           imageFile != null
               ? Image.file(imageFile!, fit: BoxFit.cover)
-              : Image.network(imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _placeholder()),
+              : imageUrl.startsWith('assets/')
+                  ? Image.asset(imageUrl, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder())
+                  : Image.network(imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder()),
           // Overlay change button
           Positioned(
             bottom: 10,

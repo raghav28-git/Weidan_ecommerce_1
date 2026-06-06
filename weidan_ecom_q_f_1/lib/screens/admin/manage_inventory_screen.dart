@@ -177,10 +177,7 @@ class _InventoryCard extends StatelessWidget {
                     width: Responsive.isTablet(context) ? 88 : 72,
                     height: Responsive.isTablet(context) ? 88 : 72,
                     child: product.imageUrl.isNotEmpty
-                        ? Image.network(product.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _imgPlaceholder())
+                        ? _buildImage(product.imageUrl, fit: BoxFit.cover)
                         : _imgPlaceholder(),
                   ),
                 ),
@@ -277,6 +274,15 @@ class _InventoryCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildImage(String url, {BoxFit fit = BoxFit.cover}) {
+    if (url.startsWith('assets/')) {
+      return Image.asset(url, fit: fit,
+          errorBuilder: (_, __, ___) => _imgPlaceholder());
+    }
+    return Image.network(url, fit: fit,
+        errorBuilder: (_, __, ___) => _imgPlaceholder());
   }
 
   Widget _imgPlaceholder() => Container(
