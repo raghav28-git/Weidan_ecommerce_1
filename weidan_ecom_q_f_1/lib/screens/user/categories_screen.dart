@@ -33,13 +33,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mq              = MediaQuery.of(context);
-    final navbarClearance  = Responsive.navBarClearance(context);
+    final hPad            = Responsive.hPadding(context);
+    final gridTopPad      = Responsive.vSpacing(context);
+    final navbarClearance = Responsive.navBarClearance(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: _kBg,
+        resizeToAvoidBottomInset: true,
         body: Column(
           children: [
 
@@ -78,28 +80,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       return _EmptyState(category: _selectedCategory);
                     }
                     final products = snapshot.data!;
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        final hPad = Responsive.hPadding(context);
-                        return GridView.builder(
-                          padding: EdgeInsets.fromLTRB(
-                              hPad, 20, hPad, navbarClearance),
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate:
-                              Responsive.productGridDelegate(context),
-                          itemCount: products.length,
-                          itemBuilder: (context, index) => ProductCard(
-                            product: products[index],
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ProductDetailScreen(
-                                    product: products[index]),
-                              ),
-                            ),
+                    return GridView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          hPad, gridTopPad, hPad, navbarClearance),
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate: Responsive.productGridDelegate(context),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) => ProductCard(
+                        product: products[index],
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProductDetailScreen(
+                                product: products[index]),
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -128,7 +124,16 @@ class _CategoriesHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topPad = MediaQuery.of(context).padding.top;
+    final mq        = MediaQuery.of(context);
+    final isSmall   = Responsive.isSmallPhone(context);
+    final topPad    = mq.padding.top;
+    // Use Responsive helpers — no duplicated clamp logic
+    final hPad      = Responsive.hPadding(context);
+    final vPad      = Responsive.vSpacing(context);
+    final titleSize = Responsive.fontSize(context, 22, min: 17, max: 26);
+    final btnSize   = isSmall ? 34.0 : 38.0;
+    final chipH     = isSmall ? 34.0 : 38.0;
+
     return Container(
       decoration: const BoxDecoration(
         color: _kDark,
@@ -141,60 +146,73 @@ class _CategoriesHeader extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 20),
+      padding: EdgeInsets.fromLTRB(hPad, topPad + vPad, hPad, vPad + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title row
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Back button — fixed square with alignment so icon is centred
               GestureDetector(
                 onTap: onBack,
                 child: Container(
-                  width: 38,
-                  height: 38,
+                  width: btnSize,
+                  height: btnSize,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1A1A),
                     shape: BoxShape.circle,
                     border: Border.all(color: const Color(0xFF2A2A2A)),
                   ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 15, color: Colors.white),
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      size: isSmall ? 13 : 15, color: Colors.white),
                 ),
               ),
-              const SizedBox(width: 14),
-              const Text(
-                'Shop',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  fontFamily: 'SF Pro Display',
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Text(
-                'by Category',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF888888),
-                  fontFamily: 'SF Pro Display',
-                  letterSpacing: -0.5,
+              SizedBox(width: isSmall ? 10 : 14),
+              // Title — Flexible so it never overflows on narrow screens
+              Flexible(
+                child: RichText(
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Shop ',
+                        style: TextStyle(
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          fontFamily: 'SF Pro Display',
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'by Category',
+                        style: TextStyle(
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF888888),
+                          fontFamily: 'SF Pro Display',
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          // Chip row
+          SizedBox(height: Responsive.vSpacingSmall(context)),
+          // Chip row — height derived from chipH so it never clips text
           SizedBox(
-            height: 38,
+            height: chipH,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) => SizedBox(width: isSmall ? 6 : 8),
               itemBuilder: (context, index) {
                 final cat      = categories[index];
                 final isActive = cat == selectedCategory;
@@ -202,6 +220,7 @@ class _CategoriesHeader extends StatelessWidget {
                   label: cat,
                   isActive: isActive,
                   onTap: () => onCategoryChanged(cat),
+                  small: isSmall,
                 );
               },
             ),
@@ -217,11 +236,13 @@ class _CategoryChip extends StatefulWidget {
   final String label;
   final bool isActive;
   final VoidCallback onTap;
+  final bool small;
 
   const _CategoryChip({
     required this.label,
     required this.isActive,
     required this.onTap,
+    this.small = false,
   });
 
   @override
@@ -233,6 +254,8 @@ class _CategoryChipState extends State<_CategoryChip> {
 
   @override
   Widget build(BuildContext context) {
+    final hPad    = widget.small ? 12.0 : 16.0;
+    final fontSize = widget.small ? 12.0 : 13.0;
     return GestureDetector(
       onTapDown:   (_) => setState(() => _pressed = true),
       onTapUp:     (_) { setState(() => _pressed = false); widget.onTap(); },
@@ -243,7 +266,8 @@ class _CategoryChipState extends State<_CategoryChip> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          // Let height be driven by the parent SizedBox, not intrinsic text height
+          padding: EdgeInsets.symmetric(horizontal: hPad),
           decoration: BoxDecoration(
             color: widget.isActive ? _kNeon : const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(19),
@@ -264,7 +288,7 @@ class _CategoryChipState extends State<_CategoryChip> {
             child: Text(
               widget.label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'SF Pro Display',
                 color: widget.isActive
@@ -287,40 +311,53 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall  = Responsive.isSmallPhone(context);
+    final iconBox  = isSmall ? 56.0 : 72.0;
+    final iconSize = isSmall ? 24.0 : 32.0;
+    final fs1      = isSmall ? 13.0 : 15.0;
+    final fs2      = isSmall ? 11.0 : 13.0;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE8E9EB),
-              shape: BoxShape.circle,
+      child: Padding(
+        // Side padding prevents text from touching screen edges on narrow phones
+        padding: EdgeInsets.symmetric(
+          horizontal: Responsive.hPadding(context),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: iconBox,
+              height: iconBox,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE8E9EB),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.inventory_2_outlined,
+                  size: iconSize, color: const Color(0xFF999999)),
             ),
-            child: const Icon(Icons.inventory_2_outlined,
-                size: 32, color: Color(0xFF999999)),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No products in "$category"',
-            style: const TextStyle(
-              fontSize: 15,
-              color: Color(0xFF888888),
-              fontFamily: 'SF Pro Display',
-              fontWeight: FontWeight.w500,
+            SizedBox(height: isSmall ? 12 : 16),
+            Text(
+              'No products in "$category"',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fs1,
+                color: const Color(0xFF888888),
+                fontFamily: 'SF Pro Display',
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Try selecting a different category',
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFFAAAAAA),
-              fontFamily: 'SF Pro Display',
+            const SizedBox(height: 6),
+            Text(
+              'Try selecting a different category',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fs2,
+                color: const Color(0xFFAAAAAA),
+                fontFamily: 'SF Pro Display',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -264,7 +264,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Pinned footer
             Padding(
-              padding: const EdgeInsets.only(bottom: 28, top: 8),
+              padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom > 0
+                  ? MediaQuery.of(context).padding.bottom + 12
+                  : 28,
+              top: 8,
+            ),
               child: RichText(
                 text: TextSpan(
                   style: const TextStyle(
@@ -472,11 +477,9 @@ class _NeonCTAButtonState extends State<_NeonCTAButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           width: double.infinity,
-          height: 54,
+          height: (MediaQuery.of(context).size.height * 0.072).clamp(48.0, 58.0),
           decoration: BoxDecoration(
-            color: widget.isLoading
-                ? _kNeon.withValues(alpha: 0.55)
-                : _kNeon,
+            color: _kNeon,
             borderRadius: BorderRadius.circular(14),
             boxShadow: widget.isLoading
                 ? []
@@ -548,9 +551,9 @@ class _SocialButtonState extends State<_SocialButton> {
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
               width: double.infinity,
-              height: 54,
+              height: (MediaQuery.of(context).size.height * 0.072).clamp(48.0, 58.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C1C).withValues(alpha: 0.85),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.10),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/cart_model.dart';
+import '../utils/responsive.dart';
 
 const _kImageMap = {
   '2.0 air shuttle':       'assets/products_image/2.0 Air Shuttle.jpg',
@@ -59,8 +60,10 @@ class _CartItemCardState extends State<CartItemCard>
 
   @override
   Widget build(BuildContext context) {
-    final sw = MediaQuery.of(context).size.width;
-    final imgSize = (sw * 0.26).clamp(96.0, 120.0);
+    final sw      = MediaQuery.of(context).size.width;
+    final imgSize = (sw * 0.26).clamp(88.0, 120.0);
+    final isSmall = Responsive.isSmallPhone(context);
+    final cardPad = isSmall ? 10.0 : 12.0;
 
     return FadeTransition(
       opacity: _removeFade,
@@ -68,28 +71,27 @@ class _CartItemCardState extends State<CartItemCard>
         sizeFactor: _removeFade,
         axisAlignment: -1,
         child: Padding(
-          // 8pt bottom margin
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: EdgeInsets.only(bottom: isSmall ? 10 : 12),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x0D000000), // 5% black — very soft
+                  color: Color(0x0D000000),
                   blurRadius: 16,
                   offset: Offset(0, 4),
                 ),
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(cardPad),
               child: Column(
                 children: [
-                  _buildTopRow(imgSize),
-                  const SizedBox(height: 12),
+                  _buildTopRow(imgSize, isSmall),
+                  SizedBox(height: isSmall ? 10 : 12),
                   const Divider(height: 1, thickness: 1, color: Color(0xFFF2F2F2)),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmall ? 10 : 12),
                   _buildBottomRow(),
                 ],
               ),
@@ -101,12 +103,12 @@ class _CartItemCardState extends State<CartItemCard>
   }
 
   // ── Top row: image + info ──────────────────────────────────────────────────
-  Widget _buildTopRow(double imgSize) {
+  Widget _buildTopRow(double imgSize, bool isSmall) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildImage(imgSize),
-        const SizedBox(width: 12),
+        SizedBox(width: isSmall ? 10 : 12),
         Expanded(child: _buildInfo()),
       ],
     );
@@ -163,6 +165,10 @@ class _CartItemCardState extends State<CartItemCard>
   // ── Info column ────────────────────────────────────────────────────────────
   Widget _buildInfo() {
     final item = widget.cartItem;
+    final sw   = MediaQuery.of(context).size.width;
+    final nameFs  = (sw * 0.036).clamp(12.0, 14.0);
+    final priceFs = (sw * 0.042).clamp(14.0, 16.0);
+    final metaFs  = (sw * 0.028).clamp(10.0, 11.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -175,10 +181,10 @@ class _CartItemCardState extends State<CartItemCard>
                 item.productName,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: nameFs,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
+                  color: const Color(0xFF111111),
                   fontFamily: 'SF Pro Display',
                   height: 1.35,
                   letterSpacing: -0.1,
@@ -195,26 +201,20 @@ class _CartItemCardState extends State<CartItemCard>
         // Brand + rating
         Row(
           children: [
-            const Icon(Icons.star_rounded, color: Color(0xFFFFA000), size: 12),
+            Icon(Icons.star_rounded, color: const Color(0xFFFFA000), size: metaFs + 1),
             const SizedBox(width: 3),
             Text(
               item.rating.toStringAsFixed(1),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF555555),
-                fontFamily: 'SF Pro Display',
-              ),
+              style: TextStyle(fontSize: metaFs, fontWeight: FontWeight.w700, color: const Color(0xFF555555), fontFamily: 'SF Pro Display'),
             ),
             const SizedBox(width: 6),
             Container(width: 1, height: 10, color: const Color(0xFFE0E0E0)),
             const SizedBox(width: 6),
-            const Text(
-              'Weidan Sports',
-              style: TextStyle(
-                fontSize: 11,
-                color: Color(0xFFAAAAAA),
-                fontFamily: 'SF Pro Display',
+            Flexible(
+              child: Text(
+                'Weidan Sports',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: metaFs, color: const Color(0xFFAAAAAA), fontFamily: 'SF Pro Display'),
               ),
             ),
           ],
@@ -222,38 +222,31 @@ class _CartItemCardState extends State<CartItemCard>
 
         const SizedBox(height: 8),
 
-        // Size chip — only when present
+        // Size chip
         if (item.size != null) ...[
           _pill('Size  ${item.size}', const Color(0xFFF2F2F2), const Color(0xFF444444),
-              fontSize: 11, fontWeight: FontWeight.w600),
+              fontSize: metaFs, fontWeight: FontWeight.w600),
           const SizedBox(height: 8),
         ],
 
         // Price row
         Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              '₹${item.price.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
-                fontFamily: 'SF Pro Display',
-                height: 1.0,
+            Flexible(
+              child: Text(
+                '₹${item.price.toStringAsFixed(0)}',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: priceFs, fontWeight: FontWeight.w800, color: const Color(0xFF111111), fontFamily: 'SF Pro Display', height: 1.0),
               ),
             ),
             if (item.hasDiscount) ...[
               const SizedBox(width: 6),
-              Text(
-                '₹${item.originalPrice!.toStringAsFixed(0)}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFFBBBBBB),
-                  decoration: TextDecoration.lineThrough,
-                  decorationColor: Color(0xFFBBBBBB),
-                  fontFamily: 'SF Pro Display',
+              Flexible(
+                child: Text(
+                  '₹${item.originalPrice!.toStringAsFixed(0)}',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: metaFs + 1, color: const Color(0xFFBBBBBB), decoration: TextDecoration.lineThrough, decorationColor: const Color(0xFFBBBBBB), fontFamily: 'SF Pro Display'),
                 ),
               ),
             ],
@@ -350,6 +343,7 @@ class _DeleteButtonState extends State<_DeleteButton> {
 
   @override
   Widget build(BuildContext context) {
+    final size = Responsive.isSmallPhone(context) ? 28.0 : 32.0;
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
@@ -361,8 +355,9 @@ class _DeleteButtonState extends State<_DeleteButton> {
         scale: _pressed ? 0.88 : 1.0,
         duration: const Duration(milliseconds: 120),
         child: Container(
-          width: 32,
-          height: 32,
+          width: size,
+          height: size,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: const Color(0xFFFFF0F0),
             borderRadius: BorderRadius.circular(8),
@@ -386,7 +381,10 @@ class _QtySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final btnSize = (MediaQuery.of(context).size.width * 0.095).clamp(36.0, 44.0);
+    final sw      = MediaQuery.of(context).size.width;
+    final btnSize = (sw * 0.095).clamp(34.0, 44.0);
+    final qtyFs   = (sw * 0.034).clamp(12.0, 14.0);
+    final iconSz  = (sw * 0.04).clamp(14.0, 16.0);
     return Container(
       height: btnSize,
       decoration: BoxDecoration(
@@ -397,13 +395,10 @@ class _QtySelector extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _Btn(
-            icon: quantity == 1
-                ? Icons.delete_outline_rounded
-                : Icons.remove_rounded,
-            color: quantity == 1
-                ? const Color(0xFFE53935)
-                : const Color(0xFF333333),
+            icon: quantity == 1 ? Icons.delete_outline_rounded : Icons.remove_rounded,
+            color: quantity == 1 ? const Color(0xFFE53935) : const Color(0xFF333333),
             size: btnSize,
+            iconSize: iconSz,
             onTap: () => onChanged(quantity - 1),
           ),
           AnimatedSwitcher(
@@ -418,10 +413,10 @@ class _QtySelector extends StatelessWidget {
               child: Text(
                 '$quantity',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: qtyFs,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: const Color(0xFF111111),
                   fontFamily: 'SF Pro Display',
                 ),
               ),
@@ -431,6 +426,7 @@ class _QtySelector extends StatelessWidget {
             icon: Icons.add_rounded,
             color: const Color(0xFF333333),
             size: btnSize,
+            iconSize: iconSz,
             onTap: () => onChanged(quantity + 1),
           ),
         ],
@@ -443,8 +439,9 @@ class _Btn extends StatefulWidget {
   final IconData icon;
   final Color color;
   final double size;
+  final double iconSize;
   final VoidCallback onTap;
-  const _Btn({required this.icon, required this.color, required this.size, required this.onTap});
+  const _Btn({required this.icon, required this.color, required this.size, required this.iconSize, required this.onTap});
 
   @override
   State<_Btn> createState() => _BtnState();
@@ -468,6 +465,7 @@ class _BtnState extends State<_Btn> {
         child: Container(
           width: widget.size,
           height: widget.size,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -479,7 +477,7 @@ class _BtnState extends State<_Btn> {
               ),
             ],
           ),
-          child: Icon(widget.icon, size: 16, color: widget.color),
+          child: Icon(widget.icon, size: widget.iconSize, color: widget.color),
         ),
       ),
     );

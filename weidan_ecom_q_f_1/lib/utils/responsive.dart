@@ -5,6 +5,12 @@ class Responsive {
   static bool isPhone(BuildContext context) =>
       MediaQuery.of(context).size.width < 600;
 
+  /// Very small phones: width < 360 OR height < 640 (e.g. iPhone SE 1st gen)
+  static bool isSmallPhone(BuildContext context) {
+    final s = MediaQuery.of(context).size;
+    return s.width < 360 || s.height < 640;
+  }
+
   static bool isTablet(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     return w >= 600 && w < 900;
@@ -33,11 +39,25 @@ class Responsive {
   }
 
   /// Vertical section spacing: 16 phone · 20 tablet · 24 desktop
+  /// Reduced to 10 on very small phones to prevent content from being cut off.
   static double vSpacing(BuildContext context) {
+    if (isSmallPhone(context)) return 10;
     final w = screenWidth(context);
     if (w >= 900) return 24;
     if (w >= 600) return 20;
     return 16;
+  }
+
+  /// Compact spacing for tightly packed sections on small screens.
+  static double vSpacingSmall(BuildContext context) =>
+      isSmallPhone(context) ? 6 : 10;
+
+  /// Adaptive vertical padding for the dark header block.
+  static EdgeInsets headerPadding(BuildContext context) {
+    final h = screenHeight(context);
+    final hPad = (screenWidth(context) * 0.05).clamp(14.0, 24.0);
+    final vPad = h < 640 ? 10.0 : (h < 750 ? 14.0 : 18.0);
+    return EdgeInsets.fromLTRB(hPad, vPad, hPad, vPad + 2);
   }
 
   // ── Grid ────────────────────────────────────────────────────────────────────
@@ -51,14 +71,16 @@ class Responsive {
     return 2;
   }
 
-  /// Product card aspect ratio — taller on phones, wider on tablets.
-  /// Keeps image + info visible without overflow.
+  /// Product card aspect ratio — width / height.
+  /// Higher value = shorter card. Lower value = taller card.
+  /// Tuned so the info area (name + price + button) never overflows.
   static double cardAspectRatio(BuildContext context) {
     final w = screenWidth(context);
     if (w >= 900) return 0.72;
-    if (w >= 600) return 0.70;
+    if (w >= 600) return 0.68;
     if (isLandscape(context)) return 0.80;
-    return 0.68;
+    if (isSmallPhone(context)) return 0.62;
+    return 0.65;
   }
 
   /// Cross-axis spacing for product grids.
@@ -135,10 +157,11 @@ class Responsive {
     return 20;
   }
 
-  /// Max height for bottom sheets (leaves room for status bar).
+  /// Max height for bottom sheets.
+  /// Accounts for status bar, keyboard insets, and a safe breathing gap.
   static double sheetMaxHeight(BuildContext context) {
     final mq = MediaQuery.of(context);
-    return mq.size.height - mq.padding.top - 24;
+    return mq.size.height - mq.padding.top - mq.viewInsets.bottom - 24;
   }
 
   /// Wraps [child] in a keyboard-aware, size-constrained dialog shell.

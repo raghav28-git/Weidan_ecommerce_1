@@ -51,6 +51,41 @@ class _AddressData {
       pincode.isNotEmpty;
 }
 
+// ── Responsive helper ─────────────────────────────────────────────────────────
+class _Responsive {
+  final double sw;
+  final double sh;
+  _Responsive(BuildContext context)
+      : sw = MediaQuery.of(context).size.width,
+        sh = MediaQuery.of(context).size.height;
+
+  bool get isSmall => sw < 360;
+
+  // Horizontal page padding: tighter on very small screens
+  double get hPad => isSmall ? 12.0 : 16.0;
+
+  // Card inner padding
+  double get cardPad => isSmall ? 12.0 : 16.0;
+
+  // Section gap (between cards)
+  double get gap => isSmall ? 14.0 : 20.0;
+
+  // Small gap (between label and card)
+  double get gapSm => isSmall ? 8.0 : 12.0;
+
+  // Bottom bar button height
+  double get btnH => (sh * 0.065).clamp(44.0, 56.0);
+
+  // Bottom bar total font size
+  double get totalFontSz => (sw * 0.056).clamp(16.0, 24.0);
+
+  // Grand total amount font size inside summary card
+  double get grandTotalFontSz => (sw * 0.058).clamp(18.0, 26.0);
+
+  // List bottom padding (leaves room for the bottom bar)
+  double get listBottomPad => btnH + 60;
+}
+
 class _PaymentScreenState extends State<PaymentScreen> {
   final _orderService = OrderService();
   final _address = _AddressData();
@@ -89,31 +124,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPad = MediaQuery.of(context).padding.bottom;
+    final mq = MediaQuery.of(context);
+    final bottomPad = mq.padding.bottom;
+    final r = _Responsive(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6F8),
         appBar: _buildAppBar(),
         body: ListView(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPad + 100),
+          padding: EdgeInsets.fromLTRB(r.hPad, r.gapSm, r.hPad, bottomPad + r.listBottomPad),
           children: [
             _sectionTitle('Delivery Address', Icons.location_on_rounded),
-            const SizedBox(height: 12),
+            SizedBox(height: r.gapSm),
             _addressCard(),
-            const SizedBox(height: 20),
+            SizedBox(height: r.gap),
             _sectionTitle('Payment Method', Icons.payment_rounded),
-            const SizedBox(height: 12),
+            SizedBox(height: r.gapSm),
             _paymentCard(),
-            const SizedBox(height: 20),
+            SizedBox(height: r.gap),
             _sectionTitle('Order Summary', Icons.receipt_long_rounded),
-            const SizedBox(height: 12),
+            SizedBox(height: r.gapSm),
             _summaryCard(),
-            const SizedBox(height: 20),
+            SizedBox(height: r.gap),
             _sectionTitle('Coupons & Offers', Icons.local_offer_rounded),
-            const SizedBox(height: 12),
+            SizedBox(height: r.gapSm),
             _couponCard(),
-            const SizedBox(height: 20),
+            SizedBox(height: r.gap),
             _trustCard(),
           ],
         ),
@@ -277,8 +314,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             children: [
               // Avatar
               Container(
-                width: 44,
-                height: 44,
+                constraints: const BoxConstraints(minWidth: 36, maxWidth: 48, minHeight: 36, maxHeight: 48),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0F0F0),
                   borderRadius: BorderRadius.circular(12),
@@ -333,7 +369,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
               // Verified badge
-              Container(
+              Flexible(
+                flex: 0,
+                child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -358,6 +396,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ],
                 ),
               ),
+              ), // end Flexible badge
             ],
           ),
 
@@ -488,115 +527,129 @@ class _PaymentScreenState extends State<PaymentScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-            child: Form(
-              key: sheetFormKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Handle
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(top: 10, bottom: 20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E0E0),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+      // useSafeArea ensures the sheet never hides behind system bars
+      useSafeArea: true,
+      builder: (ctx) {
+        // MediaQuery.removePadding keeps the sheet from double-counting
+        // the bottom inset that the Scaffold already handles.
+        return MediaQuery.removeViewInsets(
+          removeBottom: true,
+          context: ctx,
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  child: Form(
+                    key: sheetFormKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Handle
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            margin: const EdgeInsets.only(top: 10, bottom: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0E0E0),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          'Delivery Address',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0D0D0D),
+                            fontFamily: 'SF Pro Display',
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(child: _sheetField(nameCtrl, 'Full Name', Icons.person_outline_rounded)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _sheetField(
+                                phoneCtrl, 'Phone', Icons.phone_outlined,
+                                keyboardType: TextInputType.phone,
+                                validator: (v) =>
+                                    v != null && v.length == 10 ? null : '10 digits',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _sheetField(line1Ctrl, 'Street / Flat / Area', Icons.home_outlined, maxLines: 2),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(child: _sheetField(cityCtrl, 'City', Icons.location_city_outlined)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _sheetField(
+                                pinCtrl, 'Pincode', Icons.pin_drop_outlined,
+                                keyboardType: TextInputType.number,
+                                validator: (v) =>
+                                    v != null && v.length == 6 ? null : '6 digits',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (!sheetFormKey.currentState!.validate()) return;
+                              setState(() {
+                                _address.name = nameCtrl.text.trim();
+                                _address.phone = phoneCtrl.text.trim();
+                                _address.line1 = line1Ctrl.text.trim();
+                                _address.city = cityCtrl.text.trim();
+                                _address.pincode = pinCtrl.text.trim();
+                              });
+                              Navigator.pop(ctx);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF111111),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14)),
+                            ),
+                            child: const Text(
+                              'Save Address',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const Text(
-                    'Delivery Address',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0D0D0D),
-                      fontFamily: 'SF Pro Display',
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(child: _sheetField(nameCtrl, 'Full Name', Icons.person_outline_rounded)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _sheetField(
-                          phoneCtrl, 'Phone', Icons.phone_outlined,
-                          keyboardType: TextInputType.phone,
-                          validator: (v) =>
-                              v != null && v.length == 10 ? null : '10 digits',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _sheetField(line1Ctrl, 'Street / Flat / Area', Icons.home_outlined, maxLines: 2),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(child: _sheetField(cityCtrl, 'City', Icons.location_city_outlined)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _sheetField(
-                          pinCtrl, 'Pincode', Icons.pin_drop_outlined,
-                          keyboardType: TextInputType.number,
-                          validator: (v) =>
-                              v != null && v.length == 6 ? null : '6 digits',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (!sheetFormKey.currentState!.validate()) return;
-                        setState(() {
-                          _address.name = nameCtrl.text.trim();
-                          _address.phone = phoneCtrl.text.trim();
-                          _address.line1 = line1Ctrl.text.trim();
-                          _address.city = cityCtrl.text.trim();
-                          _address.pincode = pinCtrl.text.trim();
-                        });
-                        Navigator.pop(ctx);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF111111),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: const Text(
-                        'Save Address',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'SF Pro Display',
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -736,8 +789,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 // Icon badge
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
-                  width: 42,
-                  height: 42,
+                  constraints: const BoxConstraints(minWidth: 36, maxWidth: 48, minHeight: 36, maxHeight: 48),
                   decoration: BoxDecoration(
                     color: selected ? const Color(0xFF111111) : iconBg,
                     borderRadius: BorderRadius.circular(12),
@@ -1244,8 +1296,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            constraints: const BoxConstraints(minWidth: 36, maxWidth: 44, minHeight: 36, maxHeight: 44),
             decoration: BoxDecoration(
               color: iconBg,
               borderRadius: BorderRadius.circular(11),
@@ -1425,7 +1476,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
+                      Flexible(
+                        child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
@@ -1438,19 +1490,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            '₹${widget.grandTotal.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              fontFamily: 'SF Pro Display',
-                              letterSpacing: -0.5,
-                              height: 1.1,
-                            ),
+                          LayoutBuilder(
+                            builder: (ctx, _) {
+                              final fs = _Responsive(ctx).grandTotalFontSz;
+                              return Text(
+                                '₹${widget.grandTotal.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontSize: fs,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  fontFamily: 'SF Pro Display',
+                                  letterSpacing: -0.5,
+                                  height: 1.1,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
+                      ), // end Flexible
                       if (hasSavings)
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -1712,10 +1770,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   // ── Place order bottom bar ──────────────────────────────────────────────────
   Widget _buildPlaceOrderBar(double bottomPad) {
-    final sw = MediaQuery.of(context).size.width;
-    final totalSz = (sw * 0.056).clamp(18.0, 26.0);
+    final r = _Responsive(context);
     return Container(
-        padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPad + 16),
+        padding: EdgeInsets.fromLTRB(r.hPad, 14, r.hPad, bottomPad + 14),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -1728,7 +1785,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         child: Row(
           children: [
-            Column(
+            Flexible(
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1740,8 +1798,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     )),
                 Text(
                   '₹${_effectiveTotal.toStringAsFixed(0)}',
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: totalSz,
+                    fontSize: r.totalFontSz,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF0D0D0D),
                     fontFamily: 'SF Pro Display',
@@ -1751,6 +1810,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 if (_couponDiscount > 0)
                   Text(
                     'Saved ₹${_couponDiscount.toStringAsFixed(0)} with coupon',
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 10,
                       color: Color(0xFF2E7D32),
@@ -1760,13 +1820,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
               ],
             ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: GestureDetector(
                 onTap: _placing ? null : _placeOrder,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
-                  height: 54,
+                  height: r.btnH,
                   decoration: BoxDecoration(
                     color: _placing
                         ? const Color(0xFF444444)

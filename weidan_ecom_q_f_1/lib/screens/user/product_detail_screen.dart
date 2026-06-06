@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/product_model.dart';
+import '../../utils/responsive.dart';
 import '../../models/order_model.dart';
 import '../../services/cart_provider.dart';
 import 'payment_screen.dart';
@@ -78,7 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final images = _images;
+    final images  = _images;
     final screenH = MediaQuery.of(context).size.height;
     final inStock = widget.product.stock > 0;
 
@@ -86,26 +87,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F8FA),
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            // ── Scrollable content ──────────────────────────────────────
             CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(child: _buildImageSection(images, screenH)),
                 SliverToBoxAdapter(child: _buildInfoCard(inStock)),
-                const SliverToBoxAdapter(child: SizedBox(height: 130)),
+                // Clearance adapts to nav bar height + safe area
+                SliverToBoxAdapter(
+                  child: SizedBox(height: Responsive.navBarClearance(context) + (Responsive.isSmallPhone(context) ? 40 : 80)),
+                ),
               ],
             ),
-
-            // ── Floating back button ────────────────────────────────────
             Positioned(
               top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
+              left: Responsive.hPadding(context),
               child: _floatBtn(Icons.arrow_back_ios_new_rounded,
                   () => Navigator.pop(context)),
             ),
-
-            // ── Sticky bottom CTA ────────────────────────────────────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -120,13 +120,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   // ── Image carousel ────────────────────────────────────────────────────────
   Widget _buildImageSection(List<String> images, double screenH) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final imageH = isLandscape
-        ? (screenH * 0.65).clamp(200.0, 360.0)
-        : (screenH * 0.46).clamp(240.0, 420.0);
+    final mq          = MediaQuery.of(context);
+    final isLandscape = mq.orientation == Orientation.landscape;
+    final isSmall     = Responsive.isSmallPhone(context);
+    final hPad        = Responsive.hPadding(context);
+    final imageH      = isLandscape
+        ? (screenH * 0.55).clamp(140.0, 300.0)
+        : (screenH * 0.40).clamp(isSmall ? 180.0 : 200.0, 380.0);
     return Container(
       height: imageH,
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      margin: EdgeInsets.fromLTRB(hPad, hPad, hPad, 0),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(24),
@@ -156,8 +159,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             // ── Wishlist + Share overlay (bottom-right) ──────────────
             Positioned(
               right: 14,
-              bottom: 56,
+              bottom: isSmall ? 44 : 56,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   _overlayIconBtn(
                     icon: _isWishlisted ? Icons.favorite : Icons.favorite_border,
@@ -213,7 +217,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               bottom: 0,
               left: 0,
               right: 0,
-              height: 72,
+              height: isSmall ? 48 : 64,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -238,12 +242,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isSmall = Responsive.isSmallPhone(context);
+    final size    = isSmall ? 36.0 : 40.0;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        width: 40,
-        height: 40,
+        width: size,
+        height: size,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.94),
           shape: BoxShape.circle,
@@ -255,21 +262,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ],
         ),
-        child: Icon(icon, size: 19, color: color),
+        child: Icon(icon, size: isSmall ? 17 : 19, color: color),
       ),
     );
   }
 
   // ── Info card ─────────────────────────────────────────────────────────────
   Widget _buildInfoCard(bool inStock) {
-    final p = widget.product;
+    final p           = widget.product;
     final hasDiscount = p.originalPrice != null && p.originalPrice! > p.price;
     final discountPct = hasDiscount
         ? (((p.originalPrice! - p.price) / p.originalPrice!) * 100).round()
         : 0;
+    final hPad   = Responsive.hPadding(context);
+    final isSmall = Responsive.isSmallPhone(context);
+    final sw      = MediaQuery.of(context).size.width;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      margin: EdgeInsets.fromLTRB(hPad * 0.7, 16, hPad * 0.7, 0),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -282,10 +292,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        padding: EdgeInsets.fromLTRB(hPad, isSmall ? 14 : 20, hPad, isSmall ? 14 : 20),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // ── Category badge + stock badge ──────────────────────────────
           Row(
             children: [
@@ -300,34 +311,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ],
           ),
 
-          const SizedBox(height: 14),
+          SizedBox(height: isSmall ? 10 : 14),
 
           // ── Product name ──────────────────────────────────────────────
           Text(
             p.name,
-            style: const TextStyle(
-              fontSize: 28,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: (sw * 0.065).clamp(20.0, 28.0),
               fontWeight: FontWeight.w800,
               fontFamily: 'Poppins',
-              color: Color(0xFF0D0D0D),
+              color: const Color(0xFF0D0D0D),
               height: 1.15,
               letterSpacing: -0.5,
             ),
           ),
 
-          const SizedBox(height: 18),
+          SizedBox(height: isSmall ? 12 : 18),
 
           // ── Price block ───────────────────────────────────────────────
           _buildPriceBlock(p.price, p.originalPrice, hasDiscount, discountPct),
 
-          const SizedBox(height: 16),
+          SizedBox(height: isSmall ? 10 : 16),
 
           // ── Rating + social proof row ─────────────────────────────────
           _buildSocialRow(p.soldCount),
 
-          const SizedBox(height: 24),
+          SizedBox(height: isSmall ? 16 : 24),
           _divider(),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
 
           // ── Size selector ─────────────────────────────────────────────
           if (widget.product.sizes.isNotEmpty) ...[
@@ -360,7 +373,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   onTap: () => setState(() => _selectedSize = size),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmall ? 16 : 22,
+                      vertical:   isSmall ? 8  : 12,
+                    ),
                     decoration: BoxDecoration(
                       color: selected ? const Color(0xFF111111) : Colors.white,
                       borderRadius: BorderRadius.circular(30),
@@ -374,7 +390,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Text(
                       size,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: isSmall ? 12 : 14,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Poppins',
                         color: selected ? Colors.white : const Color(0xFF424242),
@@ -384,38 +400,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: isSmall ? 14 : 20),
             _divider(),
-            const SizedBox(height: 20),
+            SizedBox(height: isSmall ? 14 : 20),
           ],
 
           // ── Accordion sections ──────────────────────────────────────────
           _buildAccordionBlock(p.description, p.category),
 
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
           _divider(),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
 
           // ── Product features ──────────────────────────────────────────
           _buildFeaturesSection(p.category),
 
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
           _divider(),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
 
           // ── Delivery & Offers card ────────────────────────────────────
           _buildDeliverySection(widget.product.stock),
 
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
           _divider(),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
 
           // ── Customer reviews ──────────────────────────────────────────
           _buildReviewsSection(),
 
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
           _divider(),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmall ? 14 : 20),
 
           // ── Related products ─────────────────────────────────────────
           _buildRelatedProductsBlock(),
@@ -428,6 +444,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ── Price block ───────────────────────────────────────────────────────────
   Widget _buildPriceBlock(
       double price, double? originalPrice, bool hasDiscount, int discountPct) {
+    final sw = MediaQuery.of(context).size.width;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -438,11 +455,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           children: [
             Text(
               '₹${price.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 32,
+              style: TextStyle(
+                fontSize: (sw * 0.075).clamp(22.0, 32.0),
                 fontWeight: FontWeight.w800,
                 fontFamily: 'Poppins',
-                color: Color(0xFF0D0D0D),
+                color: const Color(0xFF0D0D0D),
                 height: 1.0,
                 letterSpacing: -0.5,
               ),
@@ -450,12 +467,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             if (hasDiscount) ...[
               Text(
                 '₹${originalPrice!.toStringAsFixed(0)}',
-                style: const TextStyle(
-                  fontSize: 17,
+                style: TextStyle(
+                  fontSize: (sw * 0.042).clamp(14.0, 17.0),
                   fontFamily: 'Poppins',
-                  color: Color(0xFFAAAAAA),
+                  color: const Color(0xFFAAAAAA),
                   decoration: TextDecoration.lineThrough,
-                  decorationColor: Color(0xFFAAAAAA),
+                  decorationColor: const Color(0xFFAAAAAA),
                   height: 1.0,
                 ),
               ),
@@ -496,78 +513,55 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   // ── Rating + social proof row ─────────────────────────────────────────────
   Widget _buildSocialRow(int soldCount) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F6F8),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Star icon
-          const Icon(Icons.star_rounded, color: Color(0xFFFFA000), size: 18),
-          const SizedBox(width: 4),
-          // Rating value
-          const Text(
-            '4.5',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF0D0D0D),
-              fontFamily: 'Poppins',
-            ),
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F6F8),
+            borderRadius: BorderRadius.circular(12),
           ),
-          // Pipe separator
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: SizedBox(
-              height: 14,
-              child: VerticalDivider(
-                  color: Color(0xFFDDDDDD), thickness: 1.2, width: 1),
-            ),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Icon(Icons.star_rounded, color: Color(0xFFFFA000), size: 15),
+              const Text('4.5',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                      color: Color(0xFF0D0D0D), fontFamily: 'Poppins')),
+              const Text('·', style: TextStyle(color: Color(0xFFCCCCCC))),
+              const Text('128 reviews',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF666666), fontFamily: 'Poppins')),
+              if (soldCount > 0) ...[
+                const Text('·', style: TextStyle(color: Color(0xFFCCCCCC))),
+                const Icon(Icons.local_fire_department_rounded,
+                    color: Color(0xFFFF6D00), size: 13),
+                Text(
+                  soldCount >= 1000
+                      ? '${(soldCount / 1000).toStringAsFixed(soldCount % 1000 == 0 ? 0 : 1)}k sold'
+                      : '$soldCount sold',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
+                      color: Color(0xFFFF6D00), fontFamily: 'Poppins'),
+                ),
+              ],
+            ],
           ),
-          // Review count
-          const Text(
-            '128 reviews',
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF666666),
-              fontFamily: 'Poppins',
-            ),
-          ),
-          if (soldCount > 0) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: SizedBox(
-                height: 14,
-                child: VerticalDivider(
-                    color: Color(0xFFDDDDDD), thickness: 1.2, width: 1),
-              ),
-            ),
-            const Icon(Icons.local_fire_department_rounded,
-                color: Color(0xFFFF6D00), size: 15),
-            const SizedBox(width: 3),
-            Text(
-              soldCount >= 1000
-                  ? '${(soldCount / 1000).toStringAsFixed(soldCount % 1000 == 0 ? 0 : 1)}k sold'
-                  : '$soldCount sold',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFFF6D00),
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   // ── Bottom CTA ────────────────────────────────────────────────────────────
   Widget _buildBottomCTA(bool inStock) {
-    final bottomPad = MediaQuery.of(context).padding.bottom;
+    final mq        = MediaQuery.of(context);
+    final isSmall   = Responsive.isSmallPhone(context);
+    final sw        = mq.size.width;
+    final btnH      = (sw * 0.13).clamp(isSmall ? 40.0 : 44.0, 54.0);
+    final hPad      = Responsive.hPadding(context);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -580,21 +574,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 14, 16, bottomPad + 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(hPad, isSmall ? 10 : 12, hPad, isSmall ? 10 : 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
           children: [
-            // Row 1: Wishlist + Add to Cart
             Row(
               children: [
-                // Wishlist button
                 GestureDetector(
                   onTap: () => setState(() => _isWishlisted = !_isWishlisted),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: 48,
-                    height: 48,
+                    width: btnH,
+                    height: btnH,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: _isWishlisted
                           ? const Color(0xFFFFEBEE)
@@ -610,53 +605,41 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       _isWishlisted
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
-                      color: _isWishlisted
-                          ? Colors.redAccent
-                          : const Color(0xFF666666),
-                      size: 22,
+                      color: _isWishlisted ? Colors.redAccent : const Color(0xFF666666),
+                      size: 20,
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
-                // Add to Cart button
                 Expanded(
                   child: GestureDetector(
                     onTap: inStock ? _addToCart : null,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      height: 52,
+                      height: btnH,
                       decoration: BoxDecoration(
-                        color: inStock
-                            ? const Color(0xFFF5F5F5)
-                            : const Color(0xFFEEEEEE),
+                        color: inStock ? const Color(0xFFF5F5F5) : const Color(0xFFEEEEEE),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: inStock
-                              ? const Color(0xFFDDDDDD)
-                              : const Color(0xFFE8E8E8),
+                          color: inStock ? const Color(0xFFDDDDDD) : const Color(0xFFE8E8E8),
                         ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 18,
-                            color: inStock
-                                ? const Color(0xFF111111)
-                                : const Color(0xFFAAAAAA),
-                          ),
-                          const SizedBox(width: 7),
-                          Text(
-                            inStock ? 'Add to Cart' : 'Out of Stock',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: inStock
-                                  ? const Color(0xFF111111)
-                                  : const Color(0xFFAAAAAA),
-                              fontFamily: 'Poppins',
-                              letterSpacing: 0.1,
+                          Icon(Icons.shopping_bag_outlined, size: 17,
+                              color: inStock ? const Color(0xFF111111) : const Color(0xFFAAAAAA)),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              inStock ? 'Add to Cart' : 'Out of Stock',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: (sw * 0.034).clamp(12.0, 15.0),
+                                fontWeight: FontWeight.w700,
+                                color: inStock ? const Color(0xFF111111) : const Color(0xFFAAAAAA),
+                                fontFamily: 'Poppins',
+                              ),
                             ),
                           ),
                         ],
@@ -666,32 +649,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            // Row 2: Buy Now full-width
+            const SizedBox(height: 8),
             GestureDetector(
               onTap: inStock ? _onBuyNow : null,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                height: 52,
+                height: btnH,
                 decoration: BoxDecoration(
-                  color: inStock
-                      ? const Color(0xFF111111)
-                      : const Color(0xFFBDBDBD),
+                  color: inStock ? const Color(0xFF111111) : const Color(0xFFBDBDBD),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.bolt_rounded,
-                      size: 18,
-                      color: inStock ? Colors.white : const Color(0xFFEEEEEE),
-                    ),
+                    Icon(Icons.bolt_rounded, size: 17,
+                        color: inStock ? Colors.white : const Color(0xFFEEEEEE)),
                     const SizedBox(width: 6),
                     Text(
                       'Buy Now',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: (sw * 0.036).clamp(13.0, 16.0),
                         fontWeight: FontWeight.w800,
                         color: inStock ? Colors.white : const Color(0xFFEEEEEE),
                         fontFamily: 'Poppins',
@@ -704,17 +681,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   Widget _floatBtn(IconData icon, VoidCallback onTap, {Color? color}) {
+    final isSmall = Responsive.isSmallPhone(context);
+    final size    = isSmall ? 40.0 : 44.0;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
+        width: size,
+        height: size,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.95),
           shape: BoxShape.circle,
@@ -725,36 +706,37 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 offset: const Offset(0, 3))
           ],
         ),
-        child: Icon(icon, size: 20, color: color ?? const Color(0xFF111111)),
+        child: Icon(icon, size: isSmall ? 18 : 20,
+            color: color ?? const Color(0xFF111111)),
       ),
     );
   }
 
 
-  Widget _badge(String label, Color bg, Color fg) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: fg,
-                fontFamily: 'Poppins',
-                letterSpacing: 0.3)),
-      );
+  Widget _badge(String label, Color bg, Color fg) {
+    final isSmall = Responsive.isSmallPhone(context);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmall ? 8 : 10,
+        vertical:   isSmall ? 4 : 5,
+      ),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+      child: Text(
+        label,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: isSmall ? 10.0 : 11.0,
+          fontWeight: FontWeight.w600,
+          color: fg,
+          fontFamily: 'Poppins',
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
 
   Widget _divider() => const Divider(color: Color(0xFFEEEEEE), thickness: 1, height: 1);
 
-  Widget _sectionHeader(String title) => Text(
-        title,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF0D0D0D),
-          fontFamily: 'Poppins',
-          letterSpacing: -0.3,
-        ),
-      );
 
   // ── Accordion block ───────────────────────────────────────────────────────────
   Widget _buildAccordionBlock(String description, String category) {
@@ -810,7 +792,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             }
           }),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.hPadding(context) * 0.85,
+              vertical: Responsive.isSmallPhone(context) ? 10 : 14,
+            ),
             decoration: BoxDecoration(
               color: isOpen ? const Color(0xFFFAFAFA) : Colors.white,
               borderRadius: BorderRadius.only(
@@ -822,15 +807,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             child: Row(
               children: [
-                // Tinted icon
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: Responsive.isSmallPhone(context) ? 30.0 : 34.0,
+                  height: Responsive.isSmallPhone(context) ? 30.0 : 34.0,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: section.iconBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(section.icon, color: section.iconColor, size: 17),
+                  child: Icon(section.icon, color: section.iconColor,
+                      size: Responsive.isSmallPhone(context) ? 15 : 17),
                 ),
                 const SizedBox(width: 12),
                 // Title
@@ -986,22 +972,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: (MediaQuery.of(context).size.width * 0.30).clamp(110.0, 150.0),
+            Expanded(
+              flex: 4,
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF888888),
-                      fontFamily: 'Poppins')),
+                      fontSize: 12, fontWeight: FontWeight.w600,
+                      color: Color(0xFF888888), fontFamily: 'Poppins')),
             ),
+            const SizedBox(width: 8),
             Expanded(
+              flex: 6,
               child: Text(value,
                   style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF0D0D0D),
-                      fontFamily: 'Poppins')),
+                      fontSize: 12, fontWeight: FontWeight.w500,
+                      color: Color(0xFF0D0D0D), fontFamily: 'Poppins')),
             ),
           ],
         ),
@@ -1189,15 +1173,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ),
         const SizedBox(height: 14),
-        SizedBox(
-          height: 104,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: features.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (_, i) => _featureChip(features[i]),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final chipW = (constraints.maxWidth * 0.26).clamp(80.0, 120.0);
+            final chipH = (chipW * 1.25).clamp(100.0, 145.0);
+            return SizedBox(
+              height: chipH,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: features.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (_, i) => SizedBox(width: chipW, child: _featureChip(features[i])),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -1205,52 +1195,55 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _featureChip(_FeatureChip f) {
     return LayoutBuilder(
-      builder: (context, _) {
-        final w = (MediaQuery.of(context).size.width * 0.24).clamp(88.0, 120.0);
+      builder: (context, constraints) {
+        final w = (constraints.maxWidth).clamp(80.0, 120.0);
         return Container(
           width: w,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: f.iconBg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(f.icon, color: f.iconColor, size: 18),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: (w * 0.28).clamp(26.0, 34.0),
+                height: (w * 0.28).clamp(26.0, 34.0),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: f.iconBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(f.icon, color: f.iconColor,
+                    size: (w * 0.16).clamp(14.0, 18.0)),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                f.label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                  fontFamily: 'Poppins',
+                  height: 1.3,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            f.label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF333333),
-              fontFamily: 'Poppins',
-              height: 1.3,
-            ),
-          ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -1344,7 +1337,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             letterSpacing: -0.2,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: Responsive.isSmallPhone(context) ? 8 : 12),
 
         // Card
         Container(
@@ -1376,13 +1369,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const Icon(Icons.warning_amber_rounded,
                           color: Color(0xFFE65100), size: 16),
                       const SizedBox(width: 8),
-                      Text(
-                        'Only $stock left in stock — order soon!',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFE65100),
-                          fontFamily: 'Poppins',
+                      Flexible(
+                        child: Text(
+                          'Only $stock left in stock — order soon!',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFE65100),
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                       ),
                     ],
@@ -1411,20 +1406,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           bottomRight: bottomRadius,
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: Responsive.hPadding(context),
+                          vertical: Responsive.isSmallPhone(context) ? 12 : 14),
                       child: Row(
                         children: [
-                          // Tinted icon box
                           Container(
-                            width: 40,
-                            height: 40,
+                            width: Responsive.isSmallPhone(context) ? 36.0 : 40.0,
+                            height: Responsive.isSmallPhone(context) ? 36.0 : 40.0,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: item.iconBg,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(item.icon,
-                                color: item.iconColor, size: 20),
+                                color: item.iconColor,
+                                size: Responsive.isSmallPhone(context) ? 18 : 20),
                           ),
                           const SizedBox(width: 14),
                           // Title + subtitle
@@ -1533,17 +1530,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         // ── Section header ─────────────────────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Customer Reviews',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF0D0D0D),
-                fontFamily: 'Poppins',
-                letterSpacing: -0.2,
+            const Flexible(
+              child: Text(
+                'Customer Reviews',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0D0D0D),
+                  fontFamily: 'Poppins',
+                  letterSpacing: -0.2,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               '$_totalRatings ratings',
               style: const TextStyle(
@@ -1575,31 +1577,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Big rating number
-              Column(
-                children: [
-                  Text(
-                    _overallRating.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0D0D0D),
-                      fontFamily: 'Poppins',
-                      height: 1.0,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  _starRow(_overallRating.round(), size: 14),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'out of 5',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFFAAAAAA),
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final ratingFontSize = (MediaQuery.of(context).size.width * 0.10)
+                      .clamp(Responsive.isSmallPhone(context) ? 28.0 : 32.0, 48.0);
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _overallRating.toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: ratingFontSize,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF0D0D0D),
+                          fontFamily: 'Poppins',
+                          height: 1.0,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      _starRow(_overallRating.round(), size: 13),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'out of 5',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFFAAAAAA),
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(width: 20),
               // Breakdown bars
@@ -1682,7 +1691,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final helpfulCount = r.helpfulCount + (isHelpful ? 1 : 0);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(Responsive.isSmallPhone(context) ? 12 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -1703,21 +1712,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             children: [
               // Avatar
               Container(
-                width: 40,
-                height: 40,
+                width: Responsive.isSmallPhone(context) ? 36.0 : 40.0,
+                height: Responsive.isSmallPhone(context) ? 36.0 : 40.0,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: r.avatarColor,
                   shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child: Text(
-                    r.initials,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                    ),
+                child: Text(
+                  r.initials,
+                  style: TextStyle(
+                    fontSize: Responsive.isSmallPhone(context) ? 12.0 : 14.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ),
@@ -1728,13 +1736,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          r.name,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF0D0D0D),
-                            fontFamily: 'Poppins',
+                        Flexible(
+                          child: Text(
+                            r.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0D0D0D),
+                              fontFamily: 'Poppins',
+                            ),
                           ),
                         ),
                         if (r.verified) ...[
@@ -1825,19 +1836,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             Row(
               children: List.generate(
                 2,
-                (i) => Container(
-                  width: 64,
-                  height: 64,
-                  margin: EdgeInsets.only(right: i == 0 ? 8 : 0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: const Color(0xFFEEEEEE), width: 1),
-                  ),
-                  child: const Icon(Icons.image_outlined,
-                      color: Color(0xFFCCCCCC), size: 24),
-                ),
+                (i) {
+                  final thumbSize = Responsive.isSmallPhone(context) ? 52.0 : 64.0;
+                  return Container(
+                    width: thumbSize,
+                    height: thumbSize,
+                    margin: EdgeInsets.only(right: i == 0 ? 8 : 0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: const Color(0xFFEEEEEE), width: 1),
+                    ),
+                    child: const Icon(Icons.image_outlined,
+                        color: Color(0xFFCCCCCC), size: 24),
+                  );
+                },
               ),
             ),
           ],
@@ -1972,22 +1986,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w700,
-                      color: Color(0xFF0D0D0D), fontFamily: 'Poppins',
-                      letterSpacing: -0.2,
-                    )),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                      fontSize: 11, color: Color(0xFFAAAAAA),
-                      fontFamily: 'Poppins',
-                    )),
-              ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700,
+                        color: Color(0xFF0D0D0D), fontFamily: 'Poppins',
+                        letterSpacing: -0.2,
+                      )),
+                  const SizedBox(height: 2),
+                  Text(subtitle,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11, color: Color(0xFFAAAAAA),
+                        fontFamily: 'Poppins',
+                      )),
+                ],
+              ),
             ),
             const Text('See all',
                 style: TextStyle(
@@ -1997,194 +2015,294 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ],
         ),
         const SizedBox(height: 14),
-        SizedBox(
-          height: 240,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, i) => _buildRelatedCard(items[i]),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Card width: 44% of available width, clamped
+            final cardW = (constraints.maxWidth * 0.44).clamp(130.0, 200.0);
+            // Card height: generous ratio so info area never squeezes
+            final cardH = (cardW * 1.72).clamp(220.0, 300.0);
+            return SizedBox(
+              height: cardH,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, i) =>
+                    _buildRelatedCard(items[i], cardW, cardH),
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildRelatedCard(_RelatedProduct p) {
-    final isWishlisted = _relatedWishlisted.contains(p.id);
-    final discountPct = (((p.originalPrice - p.price) / p.originalPrice) * 100).round();
-    final cardW = (MediaQuery.of(context).size.width * 0.38).clamp(140.0, 180.0);
+  Widget _buildRelatedCard(
+      _RelatedProduct p, double cardW, double cardH) {
+    final isWishlisted  = _relatedWishlisted.contains(p.id);
+    final discountPct   = (((p.originalPrice - p.price) / p.originalPrice) * 100).round();
 
-    return Container(
+    // ── All dimensions derived from cardW — no fixed values ──────────────
+    final radius      = (cardW * 0.09).clamp(10.0, 16.0);
+    // Image = 46% of card height
+    final imgH        = cardH * 0.46;
+    // Inner padding
+    final pad         = (cardW * 0.07).clamp(7.0, 12.0);
+    // Font sizes
+    final ratingFs    = (cardW * 0.072).clamp(9.0, 12.0);
+    final nameFs      = (cardW * 0.080).clamp(10.0, 13.0);
+    final priceFs     = (cardW * 0.086).clamp(11.0, 14.0);
+    final origPriceFs = (cardW * 0.066).clamp(9.0, 11.0);
+    final btnFs       = (cardW * 0.074).clamp(9.5, 12.0);
+    // Button height — proportion of cardW so it never overflows
+    final btnH        = (cardW * 0.20).clamp(22.0, 32.0);
+    // Badge sizes
+    final badgePadH   = (cardW * 0.038).clamp(5.0, 8.0);
+    final badgePadV   = (cardW * 0.020).clamp(2.0, 4.0);
+    final badgeFs     = (cardW * 0.058).clamp(7.0, 10.0);
+    // Wishlist button
+    final wishSize    = (cardW * 0.20).clamp(22.0, 30.0);
+
+    return SizedBox(
       width: cardW,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12, offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image + overlays
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.asset(
-                  p.asset, height: 120, width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 120, color: const Color(0xFFF5F5F5),
-                    child: const Icon(Icons.image_outlined,
-                        color: Color(0xFFCCCCCC), size: 32),
-                  ),
-                ),
-              ),
-              // Discount badge
-              Positioned(
-                top: 8, left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF3B30),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text('$discountPct% OFF',
-                      style: const TextStyle(
-                        fontSize: 9, fontWeight: FontWeight.w800,
-                        color: Colors.white, fontFamily: 'Poppins',
-                        letterSpacing: 0.3,
-                      )),
-                ),
-              ),
-              // Wishlist button
-              Positioned(
-                top: 6, right: 6,
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    isWishlisted
-                        ? _relatedWishlisted.remove(p.id)
-                        : _relatedWishlisted.add(p.id);
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 30, height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.92),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.10),
-                          blurRadius: 6, offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      size: 15,
-                      color: isWishlisted ? Colors.redAccent : const Color(0xFF888888),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Info area
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      height: cardH,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 12, offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // ── Image + overlays ───────────────────────────────────────
+            SizedBox(
+              width: cardW,
+              height: imgH,
+              child: Stack(
                 children: [
-                  // Rating
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, color: Color(0xFFFFA000), size: 12),
-                      const SizedBox(width: 3),
-                      Text(p.rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w700,
-                            color: Color(0xFF555555), fontFamily: 'Poppins',
-                          )),
-                      const SizedBox(width: 4),
-                      Text('(${p.reviews})',
-                          style: const TextStyle(
-                            fontSize: 10, color: Color(0xFFAAAAAA),
-                            fontFamily: 'Poppins',
-                          )),
-                    ],
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(radius)),
+                    child: Image.asset(
+                      p.asset,
+                      width: cardW,
+                      height: imgH,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFF5F5F5),
+                        child: Icon(Icons.image_outlined,
+                            color: const Color(0xFFCCCCCC),
+                            size: cardW * 0.22),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  // Name
-                  Text(p.name,
-                      maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w600,
-                        color: Color(0xFF0D0D0D), fontFamily: 'Poppins',
-                        height: 1.3,
-                      )),
-                  const Spacer(),
-                  // Price row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('₹${p.price.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w800,
-                            color: Color(0xFF0D0D0D), fontFamily: 'Poppins',
-                          )),
-                      const SizedBox(width: 5),
-                      Text('₹${p.originalPrice.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 10, color: Color(0xFFAAAAAA),
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: Color(0xFFAAAAAA),
-                            fontFamily: 'Poppins',
-                          )),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Add to cart
-                  SizedBox(
-                    width: double.infinity,
-                    height: 30,
-                    child: ElevatedButton(
-                      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${p.name} added to cart'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: const Duration(seconds: 1),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+
+                  // Discount badge
+                  Positioned(
+                    top: pad * 0.6,
+                    left: pad * 0.6,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: badgePadH, vertical: badgePadV),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF3B30),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        '$discountPct% OFF',
+                        style: TextStyle(
+                          fontSize: badgeFs,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          letterSpacing: 0.3,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D0D0D),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+
+                  // Wishlist
+                  Positioned(
+                    top: pad * 0.5,
+                    right: pad * 0.5,
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        isWishlisted
+                            ? _relatedWishlisted.remove(p.id)
+                            : _relatedWishlisted.add(p.id);
+                      }),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: wishSize,
+                        height: wishSize,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.92),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.10),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          isWishlisted
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          size: wishSize * 0.50,
+                          color: isWishlisted
+                              ? Colors.redAccent
+                              : const Color(0xFF888888),
+                        ),
                       ),
-                      child: const Text('Add to Cart',
-                          style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins', letterSpacing: 0.2,
-                          )),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // ── Info area ──────────────────────────────────────────────
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(pad, pad * 0.7, pad, pad * 0.8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+
+                    // Rating row
+                    Row(
+                      children: [
+                        Icon(Icons.star_rounded,
+                            color: const Color(0xFFFFA000),
+                            size: ratingFs + 1),
+                        SizedBox(width: pad * 0.25),
+                        Text(
+                          p.rating.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: ratingFs,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF555555),
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        SizedBox(width: pad * 0.3),
+                        Flexible(
+                          child: Text(
+                            '(${p.reviews})',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: ratingFs * 0.9,
+                              color: const Color(0xFFAAAAAA),
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Product name
+                    Text(
+                      p.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: nameFs,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF0D0D0D),
+                        fontFamily: 'Poppins',
+                        height: 1.25,
+                      ),
+                    ),
+
+                    // Price row
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '₹${p.price.toStringAsFixed(0)}',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: priceFs,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0D0D0D),
+                              fontFamily: 'Poppins',
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: pad * 0.35),
+                        Flexible(
+                          child: Text(
+                            '₹${p.originalPrice.toStringAsFixed(0)}',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: origPriceFs,
+                              color: const Color(0xFFAAAAAA),
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: const Color(0xFFAAAAAA),
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Add to cart button
+                    SizedBox(
+                      width: double.infinity,
+                      height: btnH,
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${p.name} added to cart'),
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 1),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0D0D0D),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(radius * 0.65)),
+                        ),
+                        child: Text(
+                          'Add to Cart',
+                          style: TextStyle(
+                            fontSize: btnFs,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
