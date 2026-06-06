@@ -130,65 +130,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildBottomNav(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
-    final sw = MediaQuery.of(context).size.width;
-    // Cap pill width on tablets so it doesn't stretch edge-to-edge
-    final pillW = (sw - 32).clamp(0.0, 480.0);
-    return Center(
-      child: Container(
-        margin: EdgeInsets.fromLTRB(16, 0, 16, 20 + bottomInset),
-        width: pillW,
-        height: 72,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0A),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(_navItems.length, (i) {
-            final selected = _currentIndex == i;
-            return GestureDetector(
-              onTap: () => setState(() => _currentIndex = i),
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: selected ? _kNeon : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _navItems[i].icon,
-                      color: selected ? Colors.black : Colors.grey[500],
-                      size: 22,
-                    ),
-                    if (selected) ...[
-                      const SizedBox(width: 7),
-                      Text(
-                        _navItems[i].label,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + bottomInset),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(_navItems.length, (i) {
+          final selected = _currentIndex == i;
+          return GestureDetector(
+            onTap: () => setState(() => _currentIndex = i),
+            behavior: HitTestBehavior.opaque,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                color: selected ? _kNeon : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
               ),
-            );
-          }),
-        ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _navItems[i].icon,
+                    color: selected ? Colors.black : Colors.grey[500],
+                    size: 22,
+                  ),
+                  if (selected) ...[
+                    const SizedBox(width: 7),
+                    Text(
+                      _navItems[i].label,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

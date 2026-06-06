@@ -31,51 +31,39 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
     final hp = Responsive.hPadding(context);
     final bottomPad = Responsive.navBarClearance(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: StreamBuilder<List<ProductModel>>(
-        stream: _productService.getProducts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-                    color: Colors.black, strokeWidth: 3));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return _buildEmpty();
-          }
-
-          final products = _filtered(snapshot.data!);
-
-          return Column(
-            children: [
-              _buildControls(snapshot.data!.length, hp),
-              Expanded(
-                child: products.isEmpty
-                    ? Center(
-                        child: Text('No products match your search.',
-                            style: TextStyle(color: Colors.grey[500])))
-                    : GridView.builder(
-                        padding: EdgeInsets.fromLTRB(
-                            hp, 16, hp, bottomPad),
-                        gridDelegate:
-                            Responsive.productGridDelegate(context),
-                        itemCount: products.length,
-                        itemBuilder: (context, index) =>
-                            _ProductCard(
-                          product: products[index],
-                          onEdit: () => _showProductDialog(
-                              product: products[index]),
-                          onDelete: () =>
-                              _deleteProduct(products[index].id),
-                        ),
+    return StreamBuilder<List<ProductModel>>(
+      stream: _productService.getProducts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return _buildEmpty();
+        }
+        final products = _filtered(snapshot.data!);
+        return Column(
+          children: [
+            _buildControls(snapshot.data!.length, hp),
+            Expanded(
+              child: products.isEmpty
+                  ? Center(
+                      child: Text('No products match your search.',
+                          style: TextStyle(color: Colors.grey[500])))
+                  : GridView.builder(
+                      padding: EdgeInsets.fromLTRB(hp, 16, hp, bottomPad),
+                      gridDelegate: Responsive.productGridDelegate(context),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) => _ProductCard(
+                        product: products[index],
+                        onEdit: () => _showProductDialog(product: products[index]),
+                        onDelete: () => _deleteProduct(products[index].id),
                       ),
-              ),
-            ],
-          );
-        },
-      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 

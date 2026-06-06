@@ -11,61 +11,47 @@ class ViewOrdersScreen extends StatelessWidget {
     final hp = Responsive.hPadding(context);
     final bottomPad = Responsive.navBarClearance(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: StreamBuilder<List<OrderModel>>(
-        stream: _orderService.getAllOrders(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-                    color: Colors.black, strokeWidth: 3));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200], shape: BoxShape.circle),
-                    child: Icon(Icons.receipt_long,
-                        size: 60, color: Colors.grey[400]),
+    return StreamBuilder<List<OrderModel>>(
+      stream: _orderService.getAllOrders(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120, height: 120,
+                  decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
+                  child: Icon(Icons.receipt_long, size: 60, color: Colors.grey[400]),
+                ),
+                const SizedBox(height: 24),
+                Text('No Orders Yet',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: hp),
+                  child: Text(
+                    'Orders will appear here once customers start placing them',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 24),
-                  Text('No Orders Yet',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: hp),
-                    child: Text(
-                      'Orders will appear here once customers start placing them',
-                      style:
-                          TextStyle(fontSize: 14, color: Colors.grey[500]),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final orders = snapshot.data!;
-          return ListView.builder(
-            padding:
-                EdgeInsets.fromLTRB(hp, 16, hp, bottomPad),
-            itemCount: orders.length,
-            itemBuilder: (context, index) =>
-                _OrderCard(order: orders[index], orderService: _orderService),
+                ),
+              ],
+            ),
           );
-        },
-      ),
+        }
+        final orders = snapshot.data!;
+        return ListView.builder(
+          padding: EdgeInsets.fromLTRB(hp, 16, hp, bottomPad),
+          itemCount: orders.length,
+          itemBuilder: (context, index) =>
+              _OrderCard(order: orders[index], orderService: _orderService),
+        );
+      },
     );
   }
 }

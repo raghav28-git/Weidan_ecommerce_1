@@ -11,70 +11,57 @@ class ManageInventoryScreen extends StatelessWidget {
     final hp = Responsive.hPadding(context);
     final bottomPad = Responsive.navBarClearance(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: StreamBuilder<List<ProductModel>>(
-        stream: _productService.getProducts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-                    color: Colors.black, strokeWidth: 3));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200], shape: BoxShape.circle),
-                    child: Icon(Icons.inventory_2,
-                        size: 60, color: Colors.grey[400]),
-                  ),
-                  const SizedBox(height: 24),
-                  Text('No Products in Inventory',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Text('Add products to manage inventory',
-                      style: TextStyle(
-                          fontSize: 14, color: Colors.grey[500])),
-                ],
-              ),
-            );
-          }
-
-          final products = snapshot.data!;
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(hp, 16, hp, 0),
-                  child: _StatsBar(products: products),
+    return StreamBuilder<List<ProductModel>>(
+      stream: _productService.getProducts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120, height: 120,
+                  decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
+                  child: Icon(Icons.inventory_2, size: 60, color: Colors.grey[400]),
                 ),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(hp, 16, hp, bottomPad),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _InventoryCard(
-                      product: products[index],
-                      productService: _productService,
-                    ),
-                    childCount: products.length,
-                  ),
-                ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                Text('No Products in Inventory',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+                const SizedBox(height: 8),
+                Text('Add products to manage inventory',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+              ],
+            ),
           );
-        },
-      ),
+        }
+        final products = snapshot.data!;
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(hp, 16, hp, 0),
+                child: _StatsBar(products: products),
+              ),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(hp, 16, hp, bottomPad),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _InventoryCard(
+                    product: products[index],
+                    productService: _productService,
+                  ),
+                  childCount: products.length,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -112,7 +99,6 @@ class _StatsBar extends StatelessWidget {
       ),
     );
   }
-}
 
   Widget _statItem(String number, String label) {
     return Expanded(
@@ -135,6 +121,7 @@ class _StatsBar extends StatelessWidget {
       ),
     );
   }
+}
 
 // ── Inventory Card ────────────────────────────────────────────────────────────
 
